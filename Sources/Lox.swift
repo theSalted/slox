@@ -10,10 +10,9 @@ import Foundation
 struct Lox {
     
     public static func run(_ source: String) {
-        #warning("You are about to implement scanner")
-//        let scanner = Scanner(_ source)
-//        let tokens = scanner.scanTokens()
-//        for token in tokens { print(token) }
+        let scanner = Scanner(source)
+        let tokens = scanner.scanTokens()
+        for token in tokens { print(token) }
     }
     
     public static func runCode(_ code: String) {
@@ -26,7 +25,7 @@ struct Lox {
     
     public static func runPrompt() throws {
         while true {
-            print("> ")
+            print("> ", terminator: "")
             guard let code = readLine() else { continue }
             run(code)
             
