@@ -8,6 +8,10 @@ let package = Package(
     platforms: [
         .macOS(.v14)
     ],
+    products: [
+//        .library(name: "slox", targets: ["slox"])
+//        .library(name: "Lox", targets: ["Sources/Lox"])
+    ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.2.0"),
     ],
@@ -20,5 +24,9 @@ let package = Package(
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ]
         ),
+        .testTarget(
+            name: "LoxTests",
+            dependencies: ["slox"]
+        )
     ]
 )
