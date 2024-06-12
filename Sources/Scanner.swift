@@ -73,7 +73,7 @@ class Scanner {
             addToken(.leftParenthesis)
         case T.rightParenthesis.character:
             addToken(.rightParenthesis)
-        case T.leftParenthesis.character:
+        case T.leftBrace.character:
             addToken(.leftBrace)
         case T.rightBrace.character:
             addToken(.rightBrace)
@@ -92,6 +92,9 @@ class Scanner {
         case T.equal.character:
             if matchThenAdvance(Character(T.equal.rawValue)) { addToken(.equalEqual) } 
             else { addToken(.equal) }
+        case T.bang.character:
+            if matchThenAdvance(Character(T.equal.rawValue)) { addToken(.bangEqual) }
+            else { addToken(.bang) }
         case T.less.character:
             if matchThenAdvance(T.equal.character) { addToken(.lessEqual) } 
             else { addToken(.less) }
@@ -123,6 +126,7 @@ class Scanner {
     private func scanString() {
         guard !reachedEnd() else {
             Lox.error("Unterminated string.", on: line)
+            addToken(.doubleQuote)
             return
         }
         guard latestCharacter != TokenType.doubleQuote.character else {
