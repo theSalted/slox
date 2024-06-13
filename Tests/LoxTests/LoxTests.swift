@@ -6,9 +6,8 @@
 //
 
 import Testing
-@testable import Slox
+@testable import Lox
 
-#if swift(>=6.0.0)
 struct ScannerTest {
     @Test("Check character tokens one at a time",
           arguments: [
@@ -190,9 +189,9 @@ struct ScannerTest {
     }
     
 }
-#endif
 
-#if swift(>=6.0.0)
+
+#if swift(>=5.10.1)
 extension Token: @retroactive Equatable  {
     public static func == (lhs: Token, rhs: Token) -> Bool {
         switch lhs.type {

@@ -10,16 +10,33 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.2.0"),
+        .package(url: "https://github.com/apple/swift-testing.git", .upToNextMajor(from: "0.10.0")),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
+        .target(
+            name: "Lox",
+            dependencies: []
+        ),
         .executableTarget(
             name: "Slox",
             dependencies: [
+                "Lox",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ]
         ),
+        .executableTarget(
+            name: "LoxTool",
+            dependencies: [
+                "Lox",
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+            ]
+        ),
+        .testTarget(name: "LoxTests", dependencies: [
+            "Lox",
+            .product(name: "Testing", package: "swift-testing")
+        ])
     ]
 )
 

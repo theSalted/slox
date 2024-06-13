@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Lox {
+public struct Lox {
     public static func run(_ source: String) {
         let scanner = Scanner(source)
         let tokens = scanner.scanTokens()
@@ -51,7 +51,7 @@ struct Lox {
     }
 }
 
-#if swift(>=5.10.0)
+#if swift(>=5.10.1)
 extension FileHandle: @retroactive TextOutputStream {
     public func write(_ string: String) {
         guard let data = string.data(using: .utf8) else { return }
