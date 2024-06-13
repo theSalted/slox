@@ -47,7 +47,7 @@ class CodePrinter {
         indentCount -= 1
     }
     
-    func print(to path: URL) {
+    func save(to path: URL) {
         do {
             try output.write(to: path, atomically: true, encoding: .utf8)
         } catch {

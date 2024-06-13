@@ -49,8 +49,7 @@ struct AbstractSyntaxTreeGenerator {
             
         }
         
-        printer.print(to: outputDirectory)
-        
+        printer.save(to: outputDirectory)   
     }
 }
 
