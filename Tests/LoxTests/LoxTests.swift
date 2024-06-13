@@ -191,44 +191,8 @@ struct ScannerTest {
 }
 
 
-#if swift(>=5.10.1)
-extension Token: @retroactive Equatable  {
-    public static func == (lhs: Token, rhs: Token) -> Bool {
-        switch lhs.type {
-        case .string:
-            guard 
-                let lhsString = lhs.literal as? String,
-                let rhsString = rhs.literal as? String 
-            else {
-                return false
-            }
-            if lhsString != rhsString {
-                return false
-            }
-        case .number:
-            guard
-                let lhsNumber = lhs.literal as? Double,
-                let rhsNumber = rhs.literal as? Double
-            else {
-                return false
-            }
-            if lhsNumber != rhsNumber {
-                return false
-            }
-        default: break
-        }
-        
-        let lhsLiteralIsNotNil = lhs.literal != nil
-        let rhsLiteralIsNotNil = rhs.literal != nil
-        
-        return lhs.type == rhs.type &&
-               lhs.lexeme == rhs.lexeme &&
-               lhs.line == rhs.line &&
-               lhsLiteralIsNotNil == rhsLiteralIsNotNil
-    }
-}
-#else
-extension Token: Equatable  {
+
+extension Token: Equatable  { 
     public static func == (lhs: Token, rhs: Token) -> Bool {
         switch lhs.type {
         case .string:
@@ -263,4 +227,4 @@ extension Token: Equatable  {
                lhsLiteralIsNotNil == rhsLiteralIsNotNil
     }
 }
-#endif
+

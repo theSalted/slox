@@ -51,18 +51,9 @@ public struct Lox {
     }
 }
 
-#if swift(>=5.10.1)
-extension FileHandle: @retroactive TextOutputStream {
-    public func write(_ string: String) {
-        guard let data = string.data(using: .utf8) else { return }
-        write(data)
-    }
-}
-#else
 extension FileHandle: TextOutputStream {
     public func write(_ string: String) {
         guard let data = string.data(using: .utf8) else { return }
         write(data)
     }
 }
-#endif

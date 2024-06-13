@@ -27,7 +27,7 @@ let package = Package(
             ]
         ),
         .executableTarget(
-            name: "LoxTool",
+            name: "AbstractSyntaxTreeGenerator",
             dependencies: [
                 "Lox",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
