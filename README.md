@@ -9,7 +9,7 @@ This project follows the book [Crafting Interpreters](http://www.craftinginterpr
 > [!NOTE]  
 > This project sometimes deviate from offical implementation in the book. For better conformance with Swift feature and standard paractice. I also made an effort to make this project more extensible, since I intend to use this as foundation for future project. 
 
-# Progress
+## Progress
 - [x] Scanner
   - [x] Tests
   - [x] `\**\` style comments
