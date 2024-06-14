@@ -11,13 +11,15 @@ This project follows the book [Crafting Interpreters](http://www.craftinginterpr
 
 ## Progress
 - [x] Scanner
-  - [x] Tests
   - [x] `\**\` style comments
+  - [x] Tests
 - [x] Abstract Syntax Tree
   - [x] Code generator 
   - [x] Cli tool 
   - [x] Generation from JSON
-  - [ ] AST Printer
+  - [x] AST Printer
+  - [ ] Essential types 
+  - [x] Tests
 
 ## Reference
 - [Original Implementation](https://github.com/munificent/craftinginterpreters)

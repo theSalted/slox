@@ -14,6 +14,9 @@ protocol ExpressionVisitor {
     associatedtype ExpressionVisitorReturn
 
     func visit(_ expr: Binary) -> ExpressionVisitorReturn
+    func visit(_ expr: Grouping) -> ExpressionVisitorReturn
+    func visit(_ expr: Literal) -> ExpressionVisitorReturn
+    func visit(_ expr: Unary) -> ExpressionVisitorReturn
 }
 
 struct Binary: Expression {
@@ -23,6 +26,44 @@ struct Binary: Expression {
 
     init(lhs: Expression, `operator`: Token, rhs: Expression) {
         self.lhs = lhs
+        self.`operator` = `operator`
+        self.rhs = rhs
+    }
+
+    func accept<V: ExpressionVisitor, R>(visitor: V) -> R where R == V.ExpressionVisitorReturn {
+        return visitor.visit(self)
+    }
+}
+
+struct Grouping: Expression {
+    let expression: Expression
+
+    init(expression: Expression) {
+        self.expression = expression
+    }
+
+    func accept<V: ExpressionVisitor, R>(visitor: V) -> R where R == V.ExpressionVisitorReturn {
+        return visitor.visit(self)
+    }
+}
+
+struct Literal: Expression {
+    let value: Any?
+
+    init(value: Any?) {
+        self.value = value
+    }
+
+    func accept<V: ExpressionVisitor, R>(visitor: V) -> R where R == V.ExpressionVisitorReturn {
+        return visitor.visit(self)
+    }
+}
+
+struct Unary: Expression {
+    let `operator`: Token
+    let rhs: Expression
+
+    init(`operator`: Token, rhs: Expression) {
         self.`operator` = `operator`
         self.rhs = rhs
     }

@@ -5,6 +5,18 @@
     {
       "name": "Binary",
       "parameterField": "lhs: Expression, `operator`: Token, rhs: Expression"
+    },
+    {
+      "name": "Grouping",
+      "parameterField": "expression: Expression"
+    },
+    {
+      "name": "Literal",
+      "parameterField": "value: Any?"
+    },
+    {
+      "name": "Unary",
+      "parameterField": "`operator`: Token, rhs: Expression"
     }
   ]
 }
