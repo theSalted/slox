@@ -31,3 +31,4 @@ struct Binary: Expression {
         return visitor.visit(self)
     }
 }
+
