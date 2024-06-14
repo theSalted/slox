@@ -13,9 +13,12 @@ This project follows the book [Crafting Interpreters](http://www.craftinginterpr
 - [x] Scanner
   - [x] Tests
   - [x] `\**\` style comments
-- [x] Abstract syntax tree code generator
+- [x] Abstract Syntax Tree
+  - [x] Code generator 
   - [x] Cli tool 
-  - [x] Code generation from JSON
+  - [x] Generation from JSON
+  - [ ] AST Printer
+
 ## Reference
 - [Original Implementation](https://github.com/munificent/craftinginterpreters)
 - The [slox](https://github.com/alexito4/slox) implementation I referenced.
