@@ -10,6 +10,7 @@ import Foundation
 import OSLog
 #endif
 
+/// A class responsible for scanning and tokenizing source code for the Lox interpreter.
 class Scanner {
     private let source: String
     private var tokens: [Token] = []
@@ -28,13 +29,15 @@ class Scanner {
     
     private var line: Int = 1
     
+    /// Initializes a new scanner with the given source code.
+    /// - Parameter source: The source code to scan.
     init(_ source: String) {
         self.source = source
         self.startIndex = source.startIndex
         self._currentIndex = startIndex
     }
     
-    /// The character that in the current index position
+    /// The character at the current index position.
     private var latestCharacter: Character {
         if reachedEnd() {
             return "\0"
@@ -42,7 +45,7 @@ class Scanner {
         return source[currentIndex]
     }
     
-    /// Look ahead upcoming character without advance current index
+    /// The upcoming character without advancing the current index.
     private var upcomingCharacter: Character {
         let next = source.index(after: currentIndex)
         guard next < source.endIndex else {
@@ -51,6 +54,8 @@ class Scanner {
         return source[next]
     }
     
+    /// Scans the source code and returns a list of tokens.
+    /// - Returns: An array of tokens.
     func scanTokens() -> [Token] {
         while !reachedEnd() {
             startIndex = currentIndex
@@ -63,8 +68,9 @@ class Scanner {
         return tokens
     }
     
+    /// Scans a single token and adds it to the list of tokens.
     func scanToken() {
-        let targetCharacter: Character = latestCharacter;
+        let targetCharacter: Character = latestCharacter
         advance()
         
         typealias T = TokenType // Define a temp alias for convenience
@@ -90,39 +96,39 @@ class Scanner {
         case T.star.character:
             addToken(.star)
         case T.equal.character:
-            if matchThenAdvance(Character(T.equal.rawValue)) { addToken(.equalEqual) } 
+            if matchThenAdvance(Character(T.equal.rawValue)) { addToken(.equalEqual) }
             else { addToken(.equal) }
         case T.bang.character:
             if matchThenAdvance(Character(T.equal.rawValue)) { addToken(.bangEqual) }
             else { addToken(.bang) }
         case T.less.character:
-            if matchThenAdvance(T.equal.character) { addToken(.lessEqual) } 
+            if matchThenAdvance(T.equal.character) { addToken(.lessEqual) }
             else { addToken(.less) }
         case T.greater.character:
-            if matchThenAdvance(T.equal.character) { addToken(.greaterEqual) } 
+            if matchThenAdvance(T.equal.character) { addToken(.greaterEqual) }
             else { addToken(.greater) }
         case T.slash.character:
             switch latestCharacter {
-            case  T.slash.character: 
-                repeat { advance() } 
+            case T.slash.character:
+                repeat { advance() }
                 while latestCharacter != "\n" && !reachedEnd()
             case T.star.character:
-                repeat { advance() } 
+                repeat { advance() }
                 while latestCharacter != T.star.character && upcomingCharacter != T.slash.character && !reachedEnd()
             default: addToken(.slash)
             }
         case T.doubleQuote.character:
             scanString()
-        case _ where targetCharacter.isDecimalDigit: 
+        case _ where targetCharacter.isDecimalDigit:
             scanNumber()
         case _ where targetCharacter.isLetter || targetCharacter == T.underScore.character:
             scanKeywordAndIdentifier()
-        case " ", "\r", "\t": break // ignore useless character
+        case " ", "\r", "\t": break // Ignore whitespace characters
         default: Lox.error("Unexpected character: '\(targetCharacter)'", on: line)
         }
     }
     
-    ///  Recursive string lexical analysis
+    /// Recursively scans a string literal.
     private func scanString() {
         guard !reachedEnd() else {
             Lox.error("Unterminated string.", on: line)
@@ -141,6 +147,7 @@ class Scanner {
         scanString()
     }
     
+    /// Scans a number literal.
     private func scanNumber() {
         while latestCharacter.isDecimalDigit {
             advance()
@@ -162,6 +169,7 @@ class Scanner {
         addToken(.number, literal: number)
     }
     
+    /// Scans keywords and identifiers.
     private func scanKeywordAndIdentifier() {
         while latestCharacter.isDecimalDigit || latestCharacter.isLetter || latestCharacter == TokenType.underScore.character {
             advance()
@@ -170,21 +178,28 @@ class Scanner {
         let text = String(source[startIndex..<currentIndex])
         let type = TokenType(rawValue: text) ?? .identifier
         addToken(type)
-        
     }
     
-    /// Advance current index by and return the advanced value
+    /// Advances the current index by one and returns the advanced character.
+    /// - Returns: The character at the new current index.
     @discardableResult func advance() -> Character {
         currentIndex = source.index(after: currentIndex)
         return currentIndex < source.endIndex ? source[currentIndex] : "\0"
     }
     
+    /// Adds a token to the list of tokens.
+    /// - Parameters:
+    ///   - type: The type of the token.
+    ///   - literal: The literal value of the token, if any.
     private func addToken(_ type: TokenType, literal: Any? = nil) {
         let text = String(source[startIndex..<currentIndex])
         let token = Token(type, lexeme: text, literal: literal, line: line)
         tokens.append(token)
     }
     
+    /// Matches the expected character and advances the current index if it matches.
+    /// - Parameter expected: The expected character.
+    /// - Returns: A Boolean value indicating whether the expected character was matched.
     private func matchThenAdvance(_ expected: Character) -> Bool {
         guard !reachedEnd() else { return false }
         
@@ -195,13 +210,15 @@ class Scanner {
         return isExpected
     }
     
+    /// Checks whether the current index has reached the end of the source.
+    /// - Returns: A Boolean value indicating whether the end of the source has been reached.
     private func reachedEnd() -> Bool {
         if currentIndex < source.endIndex { return false }
         if currentIndex > source.endIndex {
             #if canImport(OSLog)
-            logger.error("Scanner have went beyond source's end index, this should never happen.")
+            logger.error("Scanner has gone beyond the source's end index, this should never happen.")
             #else
-            print("Scanner have went beyond source's end index, this should never happen.")
+            print("Scanner has gone beyond the source's end index, this should never happen.")
             #endif
         }
         return true
@@ -209,6 +226,7 @@ class Scanner {
 }
 
 extension Character {
+    /// Checks whether the character is a decimal digit.
     var isDecimalDigit: Bool {
         let digits = CharacterSet.decimalDigits
         guard let s = String(self).unicodeScalars.first else {
@@ -217,7 +235,7 @@ extension Character {
         return digits.contains(s)
     }
 }
+
 #if canImport(OSLog)
 fileprivate let logger = Logger(subsystem: "Lox", category: "Scanner")
 #endif
-

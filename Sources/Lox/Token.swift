@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// An enumeration representing the various types of tokens that can be encountered in the Lox language.
 enum TokenType: String {
     // Single-character tokens
     case leftParenthesis = "("
@@ -57,18 +58,27 @@ enum TokenType: String {
     case `while`
     case `eof`
     
-    /// Return token character if it exists
+    /// Returns the token character if it exists.
+    ///
+    /// - Warning: if a token doesn't have a matching character `\0` is returned instead.
     var character: Character {
         rawValue.count == 1 ? Character(rawValue) : "\0"
     }
 }
 
+/// A structure representing a token in the Lox language.
 struct Token: CustomStringConvertible {
     let type: TokenType
     let lexeme: String
     let literal: Any?
     let line: Int
     
+    /// Initializes a new token with the specified type, lexeme, literal, and line number.
+    /// - Parameters:
+    ///   - type: The type of the token.
+    ///   - lexeme: The lexeme (text) of the token.
+    ///   - literal: The literal value of the token, if any.
+    ///   - line: The line number where the token is found.
     init(_ type: TokenType, lexeme: String, literal: Any?, line: Int) {
         self.type = type
         self.lexeme = lexeme
@@ -76,6 +86,7 @@ struct Token: CustomStringConvertible {
         self.line = line
     }
     
+    /// A textual description of the token, including its type, lexeme, and literal value if present.
     var description: String {
         let literalText: String
         if let literal {
@@ -86,5 +97,4 @@ struct Token: CustomStringConvertible {
         
         return "\(type) \(lexeme) \(literalText)"
     }
-    
 }

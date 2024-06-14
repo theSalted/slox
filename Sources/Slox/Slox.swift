@@ -18,7 +18,6 @@ struct Slox: ParsableCommand {
             try Slox.runFile(path)
         } else {
             try Lox.runPrompt()
-//            try Lox.runPrompt()
         }
     }
     
@@ -26,6 +25,5 @@ struct Slox: ParsableCommand {
         let code = try String(contentsOf: path)
         print(code)
         Lox.runCode(code)
-//        Lox.runCode(code)
     }
 }
