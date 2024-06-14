@@ -1,0 +1,10 @@
+
+{
+  "baseName": "Expression",
+  "types": [
+    {
+      "name": "Binary",
+      "parameterField": "lhs: Expression, `operator`: Token, rhs: Expression"
+    }
+  ]
+}
