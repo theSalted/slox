@@ -191,7 +191,6 @@ struct ScannerTest {
 }
 
 
-
 extension Token: Equatable  { 
     public static func == (lhs: Token, rhs: Token) -> Bool {
         switch lhs.type {

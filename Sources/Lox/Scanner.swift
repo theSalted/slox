@@ -70,6 +70,17 @@ class Scanner {
     
     /// Scans a single token and adds it to the list of tokens.
     func scanToken() {
+        
+        /* NOTE: Notice here we assign targetCharacter and immediately advance scanner?
+         * This help avoid some nasty infinite loop. So technically currentIndex is often
+         * one character ahead of character being scanned. Which can gets confusing.
+         *
+         * This is the reason why I decided against implementing methods like peek() which
+         * return source[currentIndex] and peekNext() which return source[currentIndex + 1].
+         *
+         * Also, rename target to previous is also bad because sometime we skip characters
+         * and 'previous' immediate became inapplicable.
+         */
         let targetCharacter: Character = latestCharacter
         advance()
         
@@ -96,16 +107,16 @@ class Scanner {
         case T.star.character:
             addToken(.star)
         case T.equal.character:
-            if matchThenAdvance(Character(T.equal.rawValue)) { addToken(.equalEqual) }
+            if match(Character(T.equal.rawValue)) { addToken(.equalEqual) }
             else { addToken(.equal) }
         case T.bang.character:
-            if matchThenAdvance(Character(T.equal.rawValue)) { addToken(.bangEqual) }
+            if match(Character(T.equal.rawValue)) { addToken(.bangEqual) }
             else { addToken(.bang) }
         case T.less.character:
-            if matchThenAdvance(T.equal.character) { addToken(.lessEqual) }
+            if match(T.equal.character) { addToken(.lessEqual) }
             else { addToken(.less) }
         case T.greater.character:
-            if matchThenAdvance(T.equal.character) { addToken(.greaterEqual) }
+            if match(T.equal.character) { addToken(.greaterEqual) }
             else { addToken(.greater) }
         case T.slash.character:
             switch latestCharacter {
@@ -124,14 +135,14 @@ class Scanner {
         case _ where targetCharacter.isLetter || targetCharacter == T.underScore.character:
             scanKeywordAndIdentifier()
         case " ", "\r", "\t": break // Ignore whitespace characters
-        default: Lox.error("Unexpected character: '\(targetCharacter)'", on: line)
+        default: Lox.reportError("Unexpected character: '\(targetCharacter)'", on: line)
         }
     }
     
     /// Recursively scans a string literal.
     private func scanString() {
         guard !reachedEnd() else {
-            Lox.error("Unterminated string.", on: line)
+            Lox.reportError("Unterminated string.", on: line)
             addToken(.doubleQuote)
             return
         }
@@ -163,7 +174,7 @@ class Scanner {
         
         let numberString = String(source[startIndex..<currentIndex])
         guard let number = Double(numberString) else {
-            Lox.error("Fatal Error: scanner can't assemble digits while parsing numbers", on: line)
+            Lox.reportError("Fatal Error: scanner can't assemble digits while parsing numbers", on: line)
             return
         }
         addToken(.number, literal: number)
@@ -180,13 +191,6 @@ class Scanner {
         addToken(type)
     }
     
-    /// Advances the current index by one and returns the advanced character.
-    /// - Returns: The character at the new current index.
-    @discardableResult func advance() -> Character {
-        currentIndex = source.index(after: currentIndex)
-        return currentIndex < source.endIndex ? source[currentIndex] : "\0"
-    }
-    
     /// Adds a token to the list of tokens.
     /// - Parameters:
     ///   - type: The type of the token.
@@ -196,19 +200,37 @@ class Scanner {
         let token = Token(type, lexeme: text, literal: literal, line: line)
         tokens.append(token)
     }
+}
+
+// MARK: Utility methods
+/// Helper methods that directly interact with parser while not necessarily part of scanning rulea
+extension Scanner {
+    /// Advances the current index by one and returns the advanced character.
+    /// - Returns: The character at the new current index.
+    @discardableResult func advance() -> Character {
+        currentIndex = source.index(after: currentIndex)
+        return currentIndex < source.endIndex ? source[currentIndex] : "\0"
+    }
     
-    /// Matches the expected character and advances the current index if it matches.
-    /// - Parameter expected: The expected character.
+    /// Matches the expected character, and by default **advances** the current index if it matches.
+    ///
+    /// - Parameters:
+    ///     - expected: The expected character.
+    ///     - advanceWhenMatched: Wether auto advance when matched
     /// - Returns: A Boolean value indicating whether the expected character was matched.
-    private func matchThenAdvance(_ expected: Character) -> Bool {
+    private func match(
+        _ expected: Character,
+        advance advanceWhenMatched: Bool = true
+    ) -> Bool {
         guard !reachedEnd() else { return false }
         
         let isExpected = source[currentIndex] == expected
-        if isExpected {
+        if isExpected && advanceWhenMatched {
             advance()
         }
         return isExpected
     }
+    
     
     /// Checks whether the current index has reached the end of the source.
     /// - Returns: A Boolean value indicating whether the end of the source has been reached.

@@ -47,20 +47,12 @@ public struct Lox {
     
     // - MARK: Error handling
     
-    /// Reports an error at a specific line.
-    /// - Parameters:
-    ///   - message: The error message.
-    ///   - line: The line number where the error occurred.
-    static func error(_ message: String, on line: Int) {
-        report(message, on: line)
-    }
-    
     /// Reports an error with optional location information.
     /// - Parameters:
     ///   - message: The error message.
     ///   - where: The location description where the error occurred.
     ///   - line: The line number where the error occurred.
-    private static func report(_ message: String, at where: String? = nil, on line: Int) {
+    static func reportError(_ message: String, at where: String? = nil, on line: Int) {
         var stderr = FileHandle.standardError
         var whereText = ""
         if let `where` {
@@ -68,6 +60,14 @@ public struct Lox {
         }
         print("[line \(line)] Error\(whereText): \(message)", to: &stderr)
         hadError = true
+    }
+    
+    static func reportError(_ message: String, token: Token) {
+        if token.type == .eof {
+            reportError(message, at: " at end", on: token.line)
+        } else {
+            reportError(message, at: " at \(token.lexeme)", on: token.line)
+        }
     }
 }
 
