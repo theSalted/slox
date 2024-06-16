@@ -15,7 +15,24 @@ public struct Lox {
     public static func run(_ source: String) {
         let scanner = Scanner(source)
         let tokens = scanner.scanTokens()
-        for token in tokens { print(token) }
+        
+        if tokens.isEmpty {
+            return
+        }
+        
+        let parser = Parser(tokens: tokens)
+        guard let parsedExpression = parser.parse() else {
+            if (!hadError) {
+                print("Parser exited unexpectedly")
+            }
+            return
+        }
+        
+        if (hadError) { return }
+        
+        let printer = AbstractSyntaxTreePrinter()
+        let result = printer.toString(expr: parsedExpression)
+        print(result)
     }
     
     /// Runs the interpreter on the given code string.

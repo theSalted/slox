@@ -12,14 +12,22 @@ This project follows the book [Crafting Interpreters](http://www.craftinginterpr
 ## Progress
 - [x] Scanner
   - [x] `\**\` style comments
-  - [x] Tests
+  - [x] Comprehensive Tests
 - [x] Abstract Syntax Tree
   - [x] Code generator 
   - [x] Cli tool 
   - [x] Generation from JSON
   - [x] AST Printer
-  - [ ] Essential types 
-  - [x] Tests
+  - [x] Essential types 
+  - [x] Basic Tests
+  - [ ] Comprehensive Tests
+- [ ] Parser
+  - [x] Basic expression
+  - [ ] Statement
+  - [ ] Error recovery
+  - [x] Basic Tests
+  - [ ] Comprehensive Tests
+
 
 ## Reference
 - [Original Implementation](https://github.com/munificent/craftinginterpreters)
