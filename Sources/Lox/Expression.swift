@@ -6,6 +6,12 @@
 //
 
 
+/*
+ * Name like Expr and Stmt are abbreviations and is against
+ * Swift's API Design Guidelines.
+ */
+
+
 protocol Expression {
     func accept<V: ExpressionVisitor, R>(visitor: V) -> R where R == V.ExpressionVisitorReturn
 }

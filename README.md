@@ -21,13 +21,16 @@ This project follows the book [Crafting Interpreters](http://www.craftinginterpr
   - [x] Essential types 
   - [x] Basic Tests
   - [ ] Comprehensive Tests
-- [ ] Parser
+- [x] Parser
   - [x] Basic expression
+  - [ ] Extended expressions (comma operator, ternary operator `?:`)
+  - [ ] Error productions to handle each binary operator appearing without a left-hand operand
   - [ ] Statement
   - [ ] Error recovery
   - [x] Basic Tests
   - [ ] Comprehensive Tests
-
+- [x] Interpreter
+  - [x] Basic expression
 
 ## Reference
 - [Original Implementation](https://github.com/munificent/craftinginterpreters)

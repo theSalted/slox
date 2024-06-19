@@ -67,7 +67,7 @@ enum TokenType: String {
 }
 
 /// A structure representing a token in the Lox language.
-struct Token: CustomStringConvertible {
+public struct Token: CustomStringConvertible {
     let type: TokenType
     let lexeme: String
     let literal: Any?
@@ -87,7 +87,7 @@ struct Token: CustomStringConvertible {
     }
     
     /// A textual description of the token, including its type, lexeme, and literal value if present.
-    var description: String {
+    public var description: String {
         let literalText: String
         if let literal {
             literalText = " -> '\(literal)'"

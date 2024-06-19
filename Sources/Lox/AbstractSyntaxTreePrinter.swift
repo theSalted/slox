@@ -14,19 +14,19 @@ struct AbstractSyntaxTreePrinter: ExpressionVisitor {
         return expr.accept(visitor: self)
     }
     
+    func visit(_ expr: Literal) -> String {
+        guard let value = expr.value else {
+            return "nil"
+        }
+        return String(describing: value)
+    }
+    
     func visit(_ expr: Binary) -> String {
         return parenthesize(name: expr.operator.lexeme, expressions: expr.lhs, expr.rhs)
     }
     
     func visit(_ expr: Grouping) -> String {
         return parenthesize(name: "group", expressions: expr.expression)
-    }
-    
-    func visit(_ expr: Literal) -> String {
-        guard let value = expr.value else {
-            return "nil"
-        }
-        return String(describing: value)
     }
     
     func visit(_ expr: Unary) -> String {

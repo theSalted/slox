@@ -10,6 +10,8 @@ import Foundation
 /// A structure representing the Lox interpreter.
 public struct Lox {
     
+    private static let interpreter = Interpreter()
+    
     /// Runs the interpreter on the given source code.
     /// - Parameter source: The source code to run.
     public static func run(_ source: String) {
@@ -21,7 +23,7 @@ public struct Lox {
         }
         
         let parser = Parser(tokens: tokens)
-        guard let parsedExpression = parser.parse() else {
+        guard let expression = parser.parse() else {
             if (!hadError) {
                 print("Parser exited unexpectedly")
             }
@@ -30,9 +32,7 @@ public struct Lox {
         
         if (hadError) { return }
         
-        let printer = AbstractSyntaxTreePrinter()
-        let result = printer.toString(expr: parsedExpression)
-        print(result)
+        interpreter.intercept(expression)
     }
     
     /// Runs the interpreter on the given code string.
@@ -42,6 +42,9 @@ public struct Lox {
         
         if hadError {
             exit(65)
+        }
+        if hadRuntimeError {
+            exit(75)
         }
     }
     
@@ -56,11 +59,14 @@ public struct Lox {
             hadError = false
         }
     }
-    
+}
+
+extension Lox {
     // - MARK: Error handling properties
     
     /// Indicates whether an error has occurred during interpretation.
     static var hadError = false
+    static var hadRuntimeError = false
     
     // - MARK: Error handling
     
@@ -69,26 +75,34 @@ public struct Lox {
     ///   - message: The error message.
     ///   - where: The location description where the error occurred.
     ///   - line: The line number where the error occurred.
-    static func reportError(_ message: String, at where: String? = nil, on line: Int) {
+    static func reportError(_ message: String, at locationDescription: String? = nil, on line: Int) {
         var stderr = FileHandle.standardError
         var whereText = ""
-        if let `where` {
-            whereText = " \(`where`)"
+        if let locationDescription {
+            whereText = " \(locationDescription)"
         }
         print("[line \(line)] Error\(whereText): \(message)", to: &stderr)
         hadError = true
     }
     
-    static func reportError(_ message: String, token: Token) {
+    static func reportError(_ message: String, at token: Token) {
         if token.type == .eof {
             reportError(message, at: " at end", on: token.line)
         } else {
             reportError(message, at: " at \(token.lexeme)", on: token.line)
         }
     }
+    
+    static func reportError(_ interpreterError: InterpreterError) {
+        switch interpreterError {
+        case .runtime(message: let message, onLine: let onLine, locationDescription: let locationDescription):
+            reportError(message, at: locationDescription, on: onLine)
+            hadRuntimeError = true
+        }
+    }
 }
 
-extension FileHandle: TextOutputStream {
+extension FileHandle: @retroactive TextOutputStream {
     public func write(_ string: String) {
         guard let data = string.data(using: .utf8) else { return }
         write(data)

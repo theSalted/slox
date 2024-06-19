@@ -162,11 +162,11 @@ extension Parser {
 
 extension Parser {
     enum ParserError: Error {
-        case unmatchedConsume, runtimeException, parsingError(message: String)
+        case unmatchedConsume, runtime, parsingError(message: String)
     }
     
     func reportError(_ message: String, token: Token) -> Error {
-        Lox.reportError(message, token: token)
+        Lox.reportError(message, at: token)
         return ParserError.parsingError(message: message)
     }
     
