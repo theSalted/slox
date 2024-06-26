@@ -81,4 +81,4 @@ class CodePrinter {
     }
 }
 
-fileprivate let logger = Logger(subsystem: "AbstractSyntaxTreeGenerator", category: "CodePrinter")
+fileprivate let logger = Logger(subsystem: "SyntaxDefinitionGenerator", category: "CodePrinter")
