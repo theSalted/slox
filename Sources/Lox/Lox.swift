@@ -74,7 +74,7 @@ public extension Lox {
         var stderr = FileHandle.standardError
         var whereText = ""
         if let locationDescription {
-            whereText = " \(locationDescription)"
+            whereText = "\(locationDescription)"
         }
         print("[line \(line)] Error\(whereText): \(message)", to: &stderr)
         hadError = true

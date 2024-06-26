@@ -28,19 +28,44 @@ public class Parser {
     func parse() -> Array<Statement> {
         var statements = Array<Statement>()
         while !reachedEOF() {
-            if let statement = try? statement() {
-                statements.append(statement)
-            } else {
-                synchronize()
+            if let declaration = declaration() {
+                statements.append(declaration)
             }
         }
         return statements
     }
     
     // MARK: Statements
+    private func declaration() -> Statement? {
+        do {
+            if (match(.var)) { return try variableDeclaration() }
+            return try statement()
+        } catch {
+            synchronize()
+            return nil
+        }
+    }
+    
     private func statement() throws -> Statement {
         if (match(.print)) { return try printStatement() }
         return try expressionStatement()
+    }
+    
+    private func variableDeclaration() throws -> Statement {
+        let name: Token
+        do { name = try consume(.identifier) }
+        catch { throw reportError("Expect variable name", token: latestToken) }
+        
+        var initializer: Expression? = nil
+        if match(.equal) {
+            initializer = try expression()
+        }
+        
+        do { try consume(.semicolon) }
+        catch { throw reportError("Expect ';' after variable deceleration", token: latestToken) }
+        
+        return Var(name: name, initializer: initializer)
+        
     }
     
     private func expressionStatement() throws -> Statement {
@@ -110,6 +135,9 @@ public class Parser {
         }
         if match(.number, .string) {
             return Literal(value: previousToken.literal)
+        }
+        if match(.identifier) {
+            return Variable(name: previousToken)
         }
         if match(.leftParenthesis) {
             let expression = try expression()

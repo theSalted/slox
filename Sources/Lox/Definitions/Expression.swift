@@ -23,6 +23,7 @@ public protocol ExpressionVisitor {
     func visit(_ expr: Grouping) -> ExpressionVisitorReturn
     func visit(_ expr: Literal) -> ExpressionVisitorReturn
     func visit(_ expr: Unary) -> ExpressionVisitorReturn
+    func visit(_ expr: Variable) -> ExpressionVisitorReturn
 }
 
 public struct Binary: Expression {
@@ -72,6 +73,18 @@ public struct Unary: Expression {
     init(`operator`: Token, rhs: Expression) {
         self.`operator` = `operator`
         self.rhs = rhs
+    }
+
+    public func accept<V: ExpressionVisitor, R>(visitor: V) -> R where R == V.ExpressionVisitorReturn {
+        return visitor.visit(self)
+    }
+}
+
+public struct Variable: Expression {
+    let name: Token
+
+    init(name: Token) {
+        self.name = name
     }
 
     public func accept<V: ExpressionVisitor, R>(visitor: V) -> R where R == V.ExpressionVisitorReturn {

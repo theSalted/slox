@@ -8,6 +8,10 @@
       "parameterField": "expression: Expression"
     },
     {
+      "name": "Var",
+      "parameterField": "name: Token, initializer: Expression?"
+    },
+    {
       "name": "Print",
       "parameterField": "expression: Expression"
     }

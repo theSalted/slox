@@ -8,6 +8,7 @@
 import OSLog
 
 public final class Interpreter: StatementVisitor, ExpressionVisitor {
+    private let environment = Environment()
     
     func intercept(_ statements: Array<Statement>) {
         for statement in statements {
@@ -32,16 +33,6 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
         }
     }
     
-    func execute(stmt: Statement) -> Value? {
-        switch stmt.accept(visitor: self) {
-
-        case .none, .success(_):
-            return nil
-        case .failure(let error):
-            return .failure(error)
-        }
-    }
-    
     // MARK: Statements
     public func visit(_ stmt: Expr) -> Value? {
         switch evaluate(stmt.expression) {
@@ -53,17 +44,44 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
         }
     }
     
+    public func visit(_ stmt: Var) -> Value? {
+        var value: Value? = nil
+        
+        if let initializer = stmt.initializer {
+            value = evaluate(initializer)
+        }
+        
+        switch value {
+        
+        case .success(let value):
+            environment.define(name: stmt.name.lexeme, value: value)
+            return nil
+        case .failure(let error):
+            return .failure(error)
+        case .none:
+            return nil
+            /* Uncomment this to throw an error for un-init value
+            return .failure(
+                InterpreterError.runtime(
+                    message: "variable must be initialized",
+                    onLine: stmt.name.line,
+                    locationDescription: nil
+                )
+            )*/
+        }
+    }
+    
     public func visit(_ stmt: Print) -> Value? {
         switch evaluate(stmt.expression) {
             
         case .success(let value):
             print(toString(value))
             return nil
+        case .failure(let error):
+            return .failure(error)
         case .none:
             print(toString(nil))
             return nil
-        case .failure(let error):
-            return .failure(error)
         }
     }
     
@@ -176,12 +194,34 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
         }
     }
     
+    public func visit(_ expr: Variable) -> Value? {
+        if let value = try? environment.get(expr.name) {
+            return .success(value)
+        } else {
+            return nil
+        }
+    }
+    
     public typealias Value = Result<Any, InterpreterError>
     public typealias ExpressionVisitorReturn = Value?
     public typealias StatementVisitorReturn = Value?
 }
 
 extension Interpreter {
+    private func execute(stmt: Statement) -> Value? {
+        switch stmt.accept(visitor: self) {
+
+        case .none, .success(_):
+            return nil
+        case .failure(let error):
+            return .failure(error)
+        }
+    }
+    
+    private func evaluate(_ expr: Expression) -> Value? {
+        return expr.accept(visitor: self)
+    }
+    
     private func toString(_ value: Any?) -> String {
         guard let value = value else { return "nil" }
 
@@ -195,10 +235,6 @@ extension Interpreter {
         }
 
         return String(describing: value)
-    }
-
-    private func evaluate(_ expr: Expression) -> Value? {
-        return expr.accept(visitor: self)
     }
     
     private func determineEqualish(_ lhs: Value?, _ rhs: Value?) -> Bool {

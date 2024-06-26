@@ -54,7 +54,7 @@ public enum TokenType: String {
     case `super`
     case this
     case `true`
-    case `var`
+    case `var` = "var"
     case `while`
     case `eof`
     

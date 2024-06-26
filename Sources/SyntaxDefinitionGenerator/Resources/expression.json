@@ -18,6 +18,10 @@
     {
       "name": "Unary",
       "parameterField": "`operator`: Token, rhs: Expression"
+    },
+    {
+      "name": "Variable",
+      "parameterField": "name: Token"
     }
   ]
 }
