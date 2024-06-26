@@ -19,7 +19,7 @@ public final class Interpreter: ExpressionVisitor {
         }
     }
     
-    func visit(_ expr: Binary) -> Value? {
+    public func visit(_ expr: Binary) -> Value? {
         // MARK: Preparing operands, and operator
         let `operator` = expr.operator
         let line = `operator`.line
@@ -91,18 +91,18 @@ public final class Interpreter: ExpressionVisitor {
         ))
     }
     
-    func visit(_ expr: Grouping) -> Value? {
+    public func visit(_ expr: Grouping) -> Value? {
         evaluate(expr.expression)
     }
     
-    func visit(_ expr: Literal) -> Value? {
+    public func visit(_ expr: Literal) -> Value? {
         guard let value = expr.value else {
             return nil
         }
         return .success(value)
     }
     
-    func visit(_ expr: Unary) -> Value? {
+    public func visit(_ expr: Unary) -> Value? {
         let `operator` = expr.operator
         let line = `operator`.line
         let rhs = evaluate(expr.rhs)
@@ -127,8 +127,8 @@ public final class Interpreter: ExpressionVisitor {
         }
     }
     
-    typealias Value = Result<Any, InterpreterError>
-    typealias ExpressionVisitorReturn = Value?
+    public typealias Value = Result<Any, InterpreterError>
+    public typealias ExpressionVisitorReturn = Value?
 }
 
 extension Interpreter {

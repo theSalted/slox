@@ -11,7 +11,7 @@ import OSLog
 #endif
 
 /// A class responsible for scanning and tokenizing source code for the Lox interpreter.
-class Scanner {
+public class Scanner {
     private let source: String
     private var tokens: [Token] = []
     private var startIndex: String.Index
@@ -204,7 +204,7 @@ class Scanner {
 
 // MARK: Utility methods
 /// Helper methods that directly interact with parser while not necessarily part of scanning rulea
-extension Scanner {
+public extension Scanner {
     /// Advances the current index by one and returns the advanced character.
     /// - Returns: The character at the new current index.
     @discardableResult func advance() -> Character {
@@ -247,7 +247,7 @@ extension Scanner {
     }
 }
 
-extension Character {
+public extension Character {
     /// Checks whether the character is a decimal digit.
     var isDecimalDigit: Bool {
         let digits = CharacterSet.decimalDigits

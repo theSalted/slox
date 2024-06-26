@@ -12,11 +12,11 @@
  */
 
 
-protocol Expression {
+public protocol Expression {
     func accept<V: ExpressionVisitor, R>(visitor: V) -> R where R == V.ExpressionVisitorReturn
 }
 
-protocol ExpressionVisitor {
+public protocol ExpressionVisitor {
     associatedtype ExpressionVisitorReturn
 
     func visit(_ expr: Binary) -> ExpressionVisitorReturn
@@ -25,7 +25,7 @@ protocol ExpressionVisitor {
     func visit(_ expr: Unary) -> ExpressionVisitorReturn
 }
 
-struct Binary: Expression {
+public struct Binary: Expression {
     let lhs: Expression
     let `operator`: Token
     let rhs: Expression
@@ -36,36 +36,36 @@ struct Binary: Expression {
         self.rhs = rhs
     }
 
-    func accept<V: ExpressionVisitor, R>(visitor: V) -> R where R == V.ExpressionVisitorReturn {
+    public func accept<V: ExpressionVisitor, R>(visitor: V) -> R where R == V.ExpressionVisitorReturn {
         return visitor.visit(self)
     }
 }
 
-struct Grouping: Expression {
+public struct Grouping: Expression {
     let expression: Expression
 
     init(expression: Expression) {
         self.expression = expression
     }
 
-    func accept<V: ExpressionVisitor, R>(visitor: V) -> R where R == V.ExpressionVisitorReturn {
+    public func accept<V: ExpressionVisitor, R>(visitor: V) -> R where R == V.ExpressionVisitorReturn {
         return visitor.visit(self)
     }
 }
 
-struct Literal: Expression {
+public struct Literal: Expression {
     let value: Any?
 
     init(value: Any?) {
         self.value = value
     }
 
-    func accept<V: ExpressionVisitor, R>(visitor: V) -> R where R == V.ExpressionVisitorReturn {
+    public func accept<V: ExpressionVisitor, R>(visitor: V) -> R where R == V.ExpressionVisitorReturn {
         return visitor.visit(self)
     }
 }
 
-struct Unary: Expression {
+public struct Unary: Expression {
     let `operator`: Token
     let rhs: Expression
 
@@ -74,8 +74,7 @@ struct Unary: Expression {
         self.rhs = rhs
     }
 
-    func accept<V: ExpressionVisitor, R>(visitor: V) -> R where R == V.ExpressionVisitorReturn {
+    public func accept<V: ExpressionVisitor, R>(visitor: V) -> R where R == V.ExpressionVisitorReturn {
         return visitor.visit(self)
     }
 }
-

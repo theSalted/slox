@@ -61,7 +61,7 @@ public struct Lox {
     }
 }
 
-extension Lox {
+public extension Lox {
     // - MARK: Error handling properties
     
     /// Indicates whether an error has occurred during interpretation.

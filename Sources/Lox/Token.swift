@@ -8,7 +8,7 @@
 import Foundation
 
 /// An enumeration representing the various types of tokens that can be encountered in the Lox language.
-enum TokenType: String {
+public enum TokenType: String {
     // Single-character tokens
     case leftParenthesis = "("
     case rightParenthesis = ")"

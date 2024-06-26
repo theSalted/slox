@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Parser {
+public class Parser {
     let tokens: [Token]
     var currentPosition: Int = 0
     
@@ -110,7 +110,7 @@ class Parser {
 
 // MARK: Utility methods
 /// Helper methods that directly interact with parser while not necessarily part of the grammar
-extension Parser {
+public extension Parser {
     
     @discardableResult private func advance() -> Token {
         if (!reachedEOF()) {
@@ -160,7 +160,7 @@ extension Parser {
 }
 
 
-extension Parser {
+public extension Parser {
     enum ParserError: Error {
         case unmatchedConsume, runtime, parsingError(message: String)
     }
