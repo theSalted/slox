@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1540"
+   LastUpgradeVersion = "1600"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -15,9 +15,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "AbstractSyntaxTreeGenerator"
-               BuildableName = "AbstractSyntaxTreeGenerator"
-               BlueprintName = "AbstractSyntaxTreeGenerator"
+               BlueprintIdentifier = "SyntaxDefinitionGenerator"
+               BuildableName = "SyntaxDefinitionGenerator"
+               BlueprintName = "SyntaxDefinitionGenerator"
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
@@ -29,18 +29,6 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
       shouldAutocreateTestPlan = "YES">
-      <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "LoxTests"
-               BuildableName = "LoxTests"
-               BlueprintName = "LoxTests"
-               ReferencedContainer = "container:">
-            </BuildableReference>
-         </TestableReference>
-      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -56,18 +44,12 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "AbstractSyntaxTreeGenerator"
-            BuildableName = "AbstractSyntaxTreeGenerator"
-            BlueprintName = "AbstractSyntaxTreeGenerator"
+            BlueprintIdentifier = "SyntaxDefinitionGenerator"
+            BuildableName = "SyntaxDefinitionGenerator"
+            BlueprintName = "SyntaxDefinitionGenerator"
             ReferencedContainer = "container:">
          </BuildableReference>
       </BuildableProductRunnable>
-      <CommandLineArguments>
-         <CommandLineArgument
-            argument = "~/Desktop"
-            isEnabled = "NO">
-         </CommandLineArgument>
-      </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -79,9 +61,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "AbstractSyntaxTreeGenerator"
-            BuildableName = "AbstractSyntaxTreeGenerator"
-            BlueprintName = "AbstractSyntaxTreeGenerator"
+            BlueprintIdentifier = "SyntaxDefinitionGenerator"
+            BuildableName = "SyntaxDefinitionGenerator"
+            BlueprintName = "SyntaxDefinitionGenerator"
             ReferencedContainer = "container:">
          </BuildableReference>
       </BuildableProductRunnable>
