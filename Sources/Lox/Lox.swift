@@ -23,16 +23,11 @@ public struct Lox {
         }
         
         let parser = Parser(tokens: tokens)
-        guard let expression = parser.parse() else {
-            if (!hadError) {
-                print("Parser exited unexpectedly")
-            }
-            return
-        }
+        let statements = parser.parse()
         
         if (hadError) { return }
         
-        interpreter.intercept(expression)
+        interpreter.intercept(statements)
     }
     
     /// Runs the interpreter on the given code string.
@@ -91,6 +86,7 @@ public extension Lox {
         } else {
             reportError(message, at: " at \(token.lexeme)", on: token.line)
         }
+        hadError = true
     }
     
     static func reportError(_ interpreterError: InterpreterError) {

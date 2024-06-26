@@ -25,14 +25,49 @@ public class Parser {
         self.tokens = tokens
     }
     
-    func parse() -> Expression? {
-        do {
-            return try expression()
-        } catch {
-            return nil
+    func parse() -> Array<Statement> {
+        var statements = Array<Statement>()
+        while !reachedEOF() {
+            if let statement = try? statement() {
+                statements.append(statement)
+            } else {
+                synchronize()
+            }
         }
+        return statements
     }
     
+    // MARK: Statements
+    private func statement() throws -> Statement {
+        if (match(.print)) { return try printStatement() }
+        return try expressionStatement()
+    }
+    
+    private func expressionStatement() throws -> Statement {
+        let expression = try expression()
+        
+        do {
+            try consume(.semicolon)
+        } catch {
+            throw reportError("Expect ';' after value", token: latestToken)
+        }
+        
+        return Expr(expression: expression)
+    }
+    
+    private func printStatement() throws -> Statement {
+        let value = try expression()
+        do {
+            try consume(.semicolon)
+        } catch {
+            throw reportError("Expect ';' after value", token: latestToken)
+        }
+        
+        return Print(expression: value)
+    }
+    
+    
+    // MARK: Expressions
     private func expression() throws -> Expression {
         return try equality()
     }
@@ -62,7 +97,6 @@ public class Parser {
         
         return try primary()
     }
-   
     
     private func primary() throws -> Expression {
         if match(.false) {

@@ -7,7 +7,20 @@
 
 import OSLog
 
-public final class Interpreter: ExpressionVisitor {
+public final class Interpreter: StatementVisitor, ExpressionVisitor {
+    
+    func intercept(_ statements: Array<Statement>) {
+        for statement in statements {
+            switch execute(stmt: statement) {
+
+            case .success(_), .none:
+                break
+            case .failure(let error):
+                return Lox.reportError(error)
+            }
+        }
+    }
+    
     func intercept(_ expr: Expression) {
         switch evaluate(expr) {
         case .success(let result):
@@ -19,6 +32,42 @@ public final class Interpreter: ExpressionVisitor {
         }
     }
     
+    func execute(stmt: Statement) -> Value? {
+        switch stmt.accept(visitor: self) {
+
+        case .none, .success(_):
+            return nil
+        case .failure(let error):
+            return .failure(error)
+        }
+    }
+    
+    // MARK: Statements
+    public func visit(_ stmt: Expr) -> Value? {
+        switch evaluate(stmt.expression) {
+            
+        case .success(_), .none:
+            return nil
+        case .failure(let error):
+            return .failure(error)
+        }
+    }
+    
+    public func visit(_ stmt: Print) -> Value? {
+        switch evaluate(stmt.expression) {
+            
+        case .success(let value):
+            print(toString(value))
+            return nil
+        case .none:
+            print(toString(nil))
+            return nil
+        case .failure(let error):
+            return .failure(error)
+        }
+    }
+    
+    // MARK: Expressions
     public func visit(_ expr: Binary) -> Value? {
         // MARK: Preparing operands, and operator
         let `operator` = expr.operator
@@ -129,6 +178,7 @@ public final class Interpreter: ExpressionVisitor {
     
     public typealias Value = Result<Any, InterpreterError>
     public typealias ExpressionVisitorReturn = Value?
+    public typealias StatementVisitorReturn = Value?
 }
 
 extension Interpreter {

@@ -1,6 +1,7 @@
 
 {
   "baseName": "Statement",
+  "baseAcronym": "stmt",
   "types": [
     {
       "name": "Expr",

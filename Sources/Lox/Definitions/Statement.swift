@@ -13,8 +13,8 @@ public protocol Statement {
 public protocol StatementVisitor {
     associatedtype StatementVisitorReturn
 
-    func visit(_ expr: Expr) -> StatementVisitorReturn
-    func visit(_ expr: Print) -> StatementVisitorReturn
+    func visit(_ stmt: Expr) -> StatementVisitorReturn
+    func visit(_ stmt: Print) -> StatementVisitorReturn
 }
 
 public struct Expr: Statement {
@@ -40,4 +40,3 @@ public struct Print: Statement {
         return visitor.visit(self)
     }
 }
-

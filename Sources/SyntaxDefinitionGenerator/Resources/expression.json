@@ -1,6 +1,7 @@
 
 {
   "baseName": "Expression",
+  "baseAcronym": "expr",
   "types": [
     {
       "name": "Binary",

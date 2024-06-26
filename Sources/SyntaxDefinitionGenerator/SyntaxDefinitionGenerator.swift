@@ -16,9 +16,9 @@ struct SyntaxDefinitionGenerator {
     let isPublic: Bool
     
     /// Initializes a new generator.
-    init(_ tree: Definition, path outputDirectory: URL? = nil, isPublic: Bool = true) {
+    init(_ definition: Definition, path outputDirectory: URL? = nil, isPublic: Bool = true) {
         self.outputDirectory = outputDirectory
-        self.definition = tree
+        self.definition = definition
         self.isPublic = isPublic
     }
     
@@ -119,7 +119,7 @@ struct SyntaxDefinitionGenerator {
         printer.emptyLine()
         
         for type in definition.types {
-            printer.writeLine("func visit(_ expr: \(type.name)) -> \(returnName)")
+            printer.writeLine("func visit(_ \((definition.baseAcronym ?? definition.baseName).lowercased()): \(type.name)) -> \(returnName)")
         }
         
         printer.detent()
@@ -146,6 +146,7 @@ struct SyntaxDefinitionGenerator {
 /// Represents an abstract syntax tree.
 struct Definition: Codable {
     let baseName: String
+    let baseAcronym: String?
     let types: [TypeDefinition]
 }
 
