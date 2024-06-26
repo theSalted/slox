@@ -33,7 +33,8 @@ let package = Package(
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ],
             resources: [
-                .process("Resources/expression.json")
+                .process("Resources/expression.json"),
+                .process("Resources/statement.json")
             ]
         ),
         .testTarget(name: "LoxTests", dependencies: [

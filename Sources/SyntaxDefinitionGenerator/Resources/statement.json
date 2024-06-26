@@ -1,0 +1,14 @@
+
+{
+  "baseName": "Statement",
+  "types": [
+    {
+      "name": "Expr",
+      "parameterField": "expression: Expression"
+    },
+    {
+      "name": "Print",
+      "parameterField": "expression: Expression"
+    }
+  ]
+}
