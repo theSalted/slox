@@ -23,7 +23,7 @@ public struct Lox {
         }
         
         let parser = Parser(tokens: tokens)
-        let statements = parser.parse()
+        let statements: Array<Statement> = parser.parse()
         
         if (hadError) { return }
         

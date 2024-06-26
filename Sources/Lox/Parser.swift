@@ -35,6 +35,15 @@ public class Parser {
         return statements
     }
     
+    func parse() -> Expression? {
+        do {
+            return try expression()
+        } catch {
+            return nil
+        }
+    }
+    
+    
     // MARK: Statements
     private func declaration() -> Statement? {
         do {
