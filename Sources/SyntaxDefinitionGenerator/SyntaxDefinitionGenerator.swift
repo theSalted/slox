@@ -49,7 +49,7 @@ struct SyntaxDefinitionGenerator {
     
     /// Writes the base protocol for the tree.
     private func writeProtocol() {
-        printer.writeLine(isPublic ? "public " : "" + "protocol \(definition.baseName) {")
+        printer.writeLine((isPublic ? "public " : "") + "protocol \(definition.baseName) {")
         
         printer.indent()
         
@@ -62,7 +62,7 @@ struct SyntaxDefinitionGenerator {
     
     /// Writes the code for a specific type in the tree.
     private func writeType(_ name: String, parameterField: String) {
-        printer.writeLine(isPublic ? "public " : "" + "struct \(name): \(definition.baseName) {")
+        printer.writeLine((isPublic ? "public " : "") + "struct \(name): \(definition.baseName) {")
         
         let parameters = parameterField.components(separatedBy: ", ").filter({ $0.isEmpty == false })
         
@@ -92,7 +92,7 @@ struct SyntaxDefinitionGenerator {
         
         printer.emptyLine()
         
-        printer.writeLine(isPublic ? "public " : "" + acceptFunctionDefinition() + " {")
+        printer.writeLine((isPublic ? "public " : "") + acceptFunctionDefinition() + " {")
         
         printer.indent()
         
@@ -109,7 +109,7 @@ struct SyntaxDefinitionGenerator {
     
     /// Writes the visitor protocol for the tree.
     private func writeVisitorProtocol() {
-        printer.writeLine(isPublic ? "public " : "" + "protocol \(visitorProtocolName()) {")
+        printer.writeLine((isPublic ? "public " : "") + "protocol \(visitorProtocolName()) {")
         
         printer.indent()
        
