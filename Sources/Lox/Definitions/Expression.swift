@@ -19,11 +19,26 @@ public protocol Expression {
 public protocol ExpressionVisitor {
     associatedtype ExpressionVisitorReturn
 
+    func visit(_ expr: Assignment) -> ExpressionVisitorReturn
     func visit(_ expr: Binary) -> ExpressionVisitorReturn
     func visit(_ expr: Grouping) -> ExpressionVisitorReturn
     func visit(_ expr: Literal) -> ExpressionVisitorReturn
     func visit(_ expr: Unary) -> ExpressionVisitorReturn
     func visit(_ expr: Variable) -> ExpressionVisitorReturn
+}
+
+public struct Assignment: Expression {
+    let name: Token
+    let value: Expression
+
+    init(name: Token, value: Expression) {
+        self.name = name
+        self.value = value
+    }
+
+    public func accept<V: ExpressionVisitor, R>(visitor: V) -> R where R == V.ExpressionVisitorReturn {
+        return visitor.visit(self)
+    }
 }
 
 public struct Binary: Expression {

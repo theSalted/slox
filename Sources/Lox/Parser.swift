@@ -103,7 +103,25 @@ public class Parser {
     
     // MARK: Expressions
     private func expression() throws -> Expression {
-        return try equality()
+        return try assignment()
+    }
+    
+    private func assignment() throws -> Expression {
+        let expression = try equality()
+        
+        if match(.equal) {
+            let equals = previousToken
+            let value = try assignment()
+            
+            if let variable = expression as? Variable  {
+                let name = variable.name
+                return Assignment(name: name, value: value)
+            }
+            
+            throw reportError("Invalid assignment target", token: equals)
+        }
+        
+        return expression
     }
     
     private func equality() throws -> Expression {

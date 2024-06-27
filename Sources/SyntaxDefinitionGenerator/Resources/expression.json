@@ -4,6 +4,10 @@
   "baseAcronym": "expr",
   "types": [
     {
+      "name": "Assignment",
+      "parameterField": "name: Token, value: Expression"
+    },
+    {
       "name": "Binary",
       "parameterField": "lhs: Expression, `operator`: Token, rhs: Expression"
     },

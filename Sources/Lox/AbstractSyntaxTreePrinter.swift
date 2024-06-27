@@ -28,11 +28,8 @@ public struct AbstractSyntaxTreePrinter: StatementVisitor, ExpressionVisitor {
     }
     
     // MARK: Expressions
-    public func visit(_ expr: Literal) -> String {
-        guard let value = expr.value else {
-            return "nil"
-        }
-        return String(describing: value)
+    public func visit(_ expr: Assignment) -> String {
+        return parenthesize(name: "=", parts: expr.name.lexeme, expr.value)
     }
     
     public func visit(_ expr: Binary) -> String {
@@ -41,6 +38,13 @@ public struct AbstractSyntaxTreePrinter: StatementVisitor, ExpressionVisitor {
     
     public func visit(_ expr: Grouping) -> String {
         parenthesize(name: "group", expressions: expr.expression)
+    }
+    
+    public func visit(_ expr: Literal) -> String {
+        guard let value = expr.value else {
+            return "nil"
+        }
+        return String(describing: value)
     }
     
     public func visit(_ expr: Unary) -> String {

@@ -33,4 +33,13 @@ public final class Environment {
         
         throw InterpreterError.runtime(message: "Undefined variable \(name.lexeme).", onLine: name.line, locationDescription: nil)
     }
+    
+    func assign(name: Token, value: Any) throws {
+        if values.contains(where: { key, value in key == name.lexeme}) {
+            values[name.lexeme] = value
+            return
+        }
+        
+        throw InterpreterError.runtime(message: "Undefined variable '\(name.lexeme)'.", onLine: name.line, locationDescription: nil)
+    }
 }

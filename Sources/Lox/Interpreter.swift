@@ -86,6 +86,37 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
     }
     
     // MARK: Expressions
+    public func visit(_ expr: Assignment) -> Value? {
+        let result = evaluate(expr.value)
+        let name = expr.name
+        let value: Any
+        switch result {
+            
+        case .success(let _value):
+            value = _value
+        case .failure(let error):
+            return .failure(error)
+        case .none:
+            try? environment.assign(name: name, value: NilAny)
+            value = NilAny
+            /* Uncomment to throw an error instead
+            return .failure(
+                InterpreterError.runtime(
+                    message: "Assignment can't be resolved",
+                    onLine: name.line,
+                    locationDescription: nil))*/
+        }
+        do { try environment.assign(name: expr.name, value: value) }
+        catch {
+            return .failure(error as? InterpreterError ??
+                            InterpreterError.runtime(
+                                message: "Undefined variable '\(name.lexeme)'.", 
+                                onLine: name.line,
+                                locationDescription: nil))
+        }
+        return .success(value)
+    }
+    
     public func visit(_ expr: Binary) -> Value? {
         // MARK: Preparing operands, and operator
         let `operator` = expr.operator
@@ -105,7 +136,11 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
 
         guard let lhs, let rhs else {
             logger.error("Operand returned nil after evaluation")
-            return .failure(InterpreterError.runtime(message: "Operand can't be evaluated", onLine: `operator`.line, locationDescription: nil))
+            return .failure(
+                InterpreterError
+                    .runtime(message: "Operand can't be evaluated", 
+                             onLine: `operator`.line, 
+                             locationDescription: nil))
         }
 
         // If either lhs or rhs are failures,
