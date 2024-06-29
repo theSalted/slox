@@ -27,7 +27,7 @@ public struct Lox {
         
         if (hadError) { return }
         
-        interpreter.intercept(statements)
+        interpreter.interpret(statements)
     }
     
     /// Runs the interpreter on the given code string.
@@ -92,7 +92,7 @@ public extension Lox {
     static func reportError(_ interpreterError: InterpreterError) {
         switch interpreterError {
         case .runtime(message: let message, onLine: let onLine, locationDescription: let locationDescription):
-            reportError(message, at: locationDescription, on: onLine)
+            reportError(message, at: locationDescription, on: onLine) // TODO: Better way
             hadRuntimeError = true
         }
     }

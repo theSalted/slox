@@ -8,16 +8,13 @@
 import OSLog
 
 public final class Interpreter: StatementVisitor, ExpressionVisitor {
-    private let environment = Environment()
+    private var environment = Environment()
     
-    func intercept(_ statements: Array<Statement>) {
+    func interpret(_ statements: Array<Statement>) {
         for statement in statements {
-            switch execute(stmt: statement) {
-
-            case .success(_), .none:
-                break
-            case .failure(let error):
-                return Lox.reportError(error)
+            let result = execute(stmt: statement)
+            if case let .failure(error) = result {
+                Lox.reportError(error)
             }
         }
     }
@@ -44,6 +41,11 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
         }
     }
     
+    public func visit(_ stmt: Block) -> Value? {
+        let result = executeBlock(statements: stmt.statements, environment: Environment(enclosing: environment))
+        return result
+    }
+    
     public func visit(_ stmt: Var) -> Value? {
         var value: Value? = nil
         
@@ -59,15 +61,13 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
         case .failure(let error):
             return .failure(error)
         case .none:
-            return nil
-            /* Uncomment this to throw an error for un-init value
             return .failure(
                 InterpreterError.runtime(
                     message: "variable must be initialized",
                     onLine: stmt.name.line,
                     locationDescription: nil
                 )
-            )*/
+            )
         }
     }
     
@@ -97,14 +97,11 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
         case .failure(let error):
             return .failure(error)
         case .none:
-            try? environment.assign(name: name, value: NilAny)
-            value = NilAny
-            /* Uncomment to throw an error instead
             return .failure(
                 InterpreterError.runtime(
                     message: "Assignment can't be resolved",
                     onLine: name.line,
-                    locationDescription: nil))*/
+                    locationDescription: nil))
         }
         do { try environment.assign(name: expr.name, value: value) }
         catch {
@@ -230,10 +227,14 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
     }
     
     public func visit(_ expr: Variable) -> Value? {
-        if let value = try? environment.get(expr.name) {
+        let name = expr.name
+        if let value = try? environment.get(name) {
             return .success(value)
         } else {
-            return nil
+            return .failure(InterpreterError.runtime(
+                                message: "Undefined variable '\(name.lexeme)'.",
+                                onLine: name.line,
+                                locationDescription: nil))
         }
     }
     
@@ -244,13 +245,26 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
 
 extension Interpreter {
     private func execute(stmt: Statement) -> Value? {
-        switch stmt.accept(visitor: self) {
-
-        case .none, .success(_):
-            return nil
-        case .failure(let error):
-            return .failure(error)
+        let value = stmt.accept(visitor: self)
+        return value
+    }
+    
+    private func executeBlock(statements: Array<Statement>, environment: Environment) -> Value? {
+        let previous = self.environment
+        self.environment = environment
+        
+        defer {
+            self.environment = previous
         }
+        
+        for statement in statements {
+            let result = execute(stmt: statement)
+            if case let .failure(error) = result {
+                return .failure(error)
+            }
+        }
+        
+        return nil
     }
     
     private func evaluate(_ expr: Expression) -> Value? {

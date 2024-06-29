@@ -134,7 +134,7 @@ public class Scanner {
             scanNumber()
         case _ where targetCharacter.isLetter || targetCharacter == T.underScore.character:
             scanKeywordAndIdentifier()
-        case " ", "\r", "\t": break // Ignore whitespace characters
+        case " ", "\r", "\t", "\n": break // Ignore whitespace characters
         default: Lox.reportError("Unexpected character: '\(targetCharacter)'", on: line)
         }
     }

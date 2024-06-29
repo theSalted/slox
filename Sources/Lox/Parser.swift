@@ -56,7 +56,11 @@ public class Parser {
     }
     
     private func statement() throws -> Statement {
-        if (match(.print)) { return try printStatement() }
+        if match(.print) { return try printStatement() }
+        if match(.leftBrace) {
+            return Block(statements: try block())
+        }
+        
         return try expressionStatement()
     }
     
@@ -87,6 +91,24 @@ public class Parser {
         }
         
         return Expr(expression: expression)
+    }
+    
+    private func block() throws -> Array<Statement> {
+        var statements = Array<Statement>()
+        
+        while !matchLatest(.rightBrace) && !reachedEOF() {
+            if let declaration = declaration() {
+                statements.append(declaration)
+            }
+        }
+        
+        do {
+            try consume(.rightBrace)
+        } catch {
+            throw reportError("Expect '}' after block.", token: latestToken)
+        }
+        
+        return statements
     }
     
     private func printStatement() throws -> Statement {
@@ -173,7 +195,7 @@ public class Parser {
                 try consume(.rightParenthesis)
             } catch {
                 // error("Expected ')' after expression")
-                throw reportError("unexpected ')' after expression", token: latestToken)
+                throw reportError("Unexpected ')' after expression", token: latestToken)
             }
             
             return Grouping(expression: expression)
@@ -218,7 +240,7 @@ public extension Parser {
     
     /// Check if latest character matches given token
     private func matchLatest(_ type: TokenType) -> Bool {
-        if (reachedEOF()) { return false }
+        if reachedEOF() { return false }
         return latestToken.type == type
     }
     

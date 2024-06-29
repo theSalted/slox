@@ -16,7 +16,16 @@
 let NilAny: Any = Optional<Any>.none as Any
 
 public final class Environment {
+    var enclosing: Environment?
     private var values = Dictionary<String, Any>()
+    
+    init() {
+        self.enclosing = nil
+    }
+    
+    init(enclosing: Environment) {
+        self.enclosing = enclosing
+    }
     
     func define(name: String, value: Any) {
         assert(!(value is Result<Any, InterpreterError>), "You should not store a result, please store its value instead")
@@ -28,7 +37,11 @@ public final class Environment {
             if let unwrapped = values[name.lexeme] {
                 return unwrapped
             }
-            return NilAny
+            throw InterpreterError.runtime(message: "Variable \(name.lexeme) is undefined.", onLine: name.line, locationDescription: nil)
+        }
+        
+        if let enclosing {
+            return try enclosing.get(name)
         }
         
         throw InterpreterError.runtime(message: "Undefined variable \(name.lexeme).", onLine: name.line, locationDescription: nil)

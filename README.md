@@ -34,6 +34,14 @@ This project follows the book [Crafting Interpreters](http://www.craftinginterpr
   - [ ] Comprehensive Tests
 - [x] Interpreter
   - [x] Basic expression
+  - [x] Statements
+  - [x] States
+  - [x] Scoping
+  - [ ] Control Flows
+  - [ ] Functions
+  - [ ] Classes
+  - [ ] Interpreter
+  - [ ] Expression support for REPL mode
 
 ## Reference
 - [Original Implementation](https://github.com/munificent/craftinginterpreters)

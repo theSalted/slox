@@ -15,6 +15,14 @@ public struct AbstractSyntaxTreePrinter: StatementVisitor, ExpressionVisitor {
         parenthesize(name: ";", expressions: stmt.expression)
     }
     
+    public func visit(_ stmt: Block) -> String {
+        var output = ""
+        for statement in stmt.statements {
+            output.append(statement.accept(visitor: self))
+        }
+        return "(block \(output))"
+    }
+    
     public func visit(_ stmt: Var) -> String {
         guard let initializer = stmt.initializer else {
             return parenthesize(name: "var", parts: stmt.name)

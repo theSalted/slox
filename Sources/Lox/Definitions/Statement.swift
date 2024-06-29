@@ -14,6 +14,7 @@ public protocol StatementVisitor {
     associatedtype StatementVisitorReturn
 
     func visit(_ stmt: Expr) -> StatementVisitorReturn
+    func visit(_ stmt: Block) -> StatementVisitorReturn
     func visit(_ stmt: Var) -> StatementVisitorReturn
     func visit(_ stmt: Print) -> StatementVisitorReturn
 }
@@ -23,6 +24,18 @@ public struct Expr: Statement {
 
     init(expression: Expression) {
         self.expression = expression
+    }
+
+    public func accept<V: StatementVisitor, R>(visitor: V) -> R where R == V.StatementVisitorReturn {
+        return visitor.visit(self)
+    }
+}
+
+public struct Block: Statement {
+    let statements: Array<Statement>
+
+    init(statements: Array<Statement>) {
+        self.statements = statements
     }
 
     public func accept<V: StatementVisitor, R>(visitor: V) -> R where R == V.StatementVisitorReturn {

@@ -8,6 +8,10 @@
       "parameterField": "expression: Expression"
     },
     {
+      "name": "Block",
+      "parameterField": "statements: Array<Statement>"
+    },
+    {
       "name": "Var",
       "parameterField": "name: Token, initializer: Expression?"
     },
