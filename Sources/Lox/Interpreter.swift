@@ -61,28 +61,33 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
     }
     
     public func visit(_ stmt: Var) -> Value? {
-        var value: Value? = nil
-        
+        let value: Any
         if let initializer = stmt.initializer {
-            value = evaluate(initializer)
-        }
-        
-        switch value {
-        
-        case .success(let value):
-            environment.define(name: stmt.name.lexeme, value: value)
-            return nil
-        case .failure(let error):
-            return .failure(error)
-        case .none:
-            return .failure(
-                InterpreterError.runtime(
+            let result = evaluate(initializer)
+            switch result {
+            case .success(let res):
+                value = res
+            case .failure(let error):
+                return .failure(error)
+            case .none:
+                return .failure(InterpreterError.runtime(
                     message: "variable must be initialized",
                     onLine: stmt.name.line,
                     locationDescription: nil
-                )
-            )
+                ))
+                /* return NilAny */
+            }
+        } else {
+            return .failure(InterpreterError.runtime(
+                message: "variable must be initialized",
+                onLine: stmt.name.line,
+                locationDescription: nil
+            ))
+            /* return NilAny */
         }
+        
+        environment.define(name: stmt.name.lexeme, value: value)
+        return .success(value)
     }
     
     public func visit(_ stmt: Print) -> Value? {
