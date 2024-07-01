@@ -17,6 +17,7 @@ public protocol StatementVisitor {
     func visit(_ stmt: If) -> StatementVisitorReturn
     func visit(_ stmt: Block) -> StatementVisitorReturn
     func visit(_ stmt: Var) -> StatementVisitorReturn
+    func visit(_ stmt: While) -> StatementVisitorReturn
     func visit(_ stmt: Print) -> StatementVisitorReturn
 }
 
@@ -67,6 +68,20 @@ public struct Var: Statement {
     init(name: Token, initializer: Expression?) {
         self.name = name
         self.initializer = initializer
+    }
+
+    public func accept<V: StatementVisitor, R>(visitor: V) -> R where R == V.StatementVisitorReturn {
+        return visitor.visit(self)
+    }
+}
+
+public struct While: Statement {
+    let condition: Expression
+    let body: Statement
+
+    init(condition: Expression, body: Statement) {
+        self.condition = condition
+        self.body = body
     }
 
     public func accept<V: StatementVisitor, R>(visitor: V) -> R where R == V.StatementVisitorReturn {

@@ -74,6 +74,10 @@ public struct AbstractSyntaxTreePrinter: StatementVisitor, ExpressionVisitor {
     public func visit(_ expr: Variable) -> String {
         expr.name.lexeme
     }
+    
+    public func visit(_ stmt: While) -> String {
+        parenthesize(name: "while", parts: stmt.condition, stmt.body)
+    }
 }
 
 extension AbstractSyntaxTreePrinter {

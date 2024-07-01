@@ -20,6 +20,10 @@
       "parameterField": "name: Token, initializer: Expression?"
     },
     {
+      "name": "While",
+      "parameterField": "condition: Expression, body: Statement"
+    },
+    {
       "name": "Print",
       "parameterField": "expression: Expression"
     }

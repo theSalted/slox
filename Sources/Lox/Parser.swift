@@ -58,11 +58,26 @@ public class Parser {
     private func statement() throws -> Statement {
         if match(.if) { return try ifStatement() }
         if match(.print) { return try printStatement() }
+        if match(.while) { return try whileStatement() }
         if match(.leftBrace) {
             return Block(statements: try block())
         }
         
         return try expressionStatement()
+    }
+    
+    private func whileStatement() throws -> Statement {
+        do { try consume(.leftParenthesis) }
+        catch { throw reportError("Expect '(' after 'while'.", token: latestToken) }
+        
+        let condition = try expression()
+        
+        do { try consume(.rightParenthesis) }
+        catch { throw reportError("Expect ')' after condition.", token: latestToken) }
+        
+        let body = try statement()
+        
+        return While(condition: condition, body: body)
     }
     
     private func variableDeclaration() throws -> Statement {

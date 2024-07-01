@@ -12,7 +12,7 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
     
     func interpret(_ statements: Array<Statement>) {
         for statement in statements {
-            let result = execute(stmt: statement)
+            let result = execute(statement)
             if case let .failure(error) = result {
                 Lox.reportError(error)
             }
@@ -43,9 +43,9 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
     
     public func visit(_ stmt: If) -> Value? {
         if determineTruthy(evaluate(stmt.condition)) {
-            execute(stmt: stmt.then)
+            execute(stmt.then)
         } else if let `else` = stmt.else {
-            execute(stmt: `else`)
+            execute(`else`)
         }
         
         return nil
@@ -260,6 +260,13 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
         }
     }
     
+    public func visit(_ stmt: While) -> Value? {
+        while determineTruthy(evaluate(stmt.condition)) {
+            execute(stmt.body)
+        }
+        return nil
+    }
+    
     public typealias Value = Result<Any, InterpreterError>
     public typealias ExpressionVisitorReturn = Value?
     public typealias StatementVisitorReturn = Value?
@@ -267,7 +274,7 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
 
 extension Interpreter {
     @discardableResult
-    private func execute(stmt: Statement) -> Value? {
+    private func execute(_ stmt: Statement) -> Value? {
         let value = stmt.accept(visitor: self)
         return value
     }
@@ -281,7 +288,7 @@ extension Interpreter {
         }
         
         for statement in statements {
-            let result = execute(stmt: statement)
+            let result = execute(statement)
             if case let .failure(error) = result {
                 return .failure(error)
             }
