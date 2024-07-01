@@ -21,6 +21,7 @@ This project follows the book [Crafting Interpreters](http://www.craftinginterpr
   - [x] Cli tool 
   - [x] Generation from JSON
   - [x] AST Printer
+  - [ ] Pretty Printer
   - [x] Essential types 
   - [x] Basic Tests
   - [ ] Comprehensive Tests
@@ -37,10 +38,10 @@ This project follows the book [Crafting Interpreters](http://www.craftinginterpr
   - [x] Statements
   - [x] States
   - [x] Scoping
-  - [ ] Control Flows
+  - [x] Control Flows
+  - [ ] Break and Continue
   - [ ] Functions
   - [ ] Classes
-  - [ ] Interpreter
   - [ ] Expression support for REPL mode
 
 ## Reference
