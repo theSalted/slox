@@ -56,6 +56,7 @@ public class Parser {
     }
     
     private func statement() throws -> Statement {
+        if match(.if) { return try ifStatement() }
         if match(.print) { return try printStatement() }
         if match(.leftBrace) {
             return Block(statements: try block())
@@ -91,6 +92,23 @@ public class Parser {
         }
         
         return Expr(expression: expression)
+    }
+    
+    private func ifStatement() throws -> Statement {
+        do { try consume(.leftParenthesis) }
+        catch { throw reportError("Expect '(' after 'if'.", token: latestToken) }
+        
+        let condition = try expression()
+        
+        do { try consume(.rightParenthesis) }
+        catch { throw reportError("Expect ')' after if condition.", token: latestToken) }
+        
+        let then = try statement()
+        let `else`: Statement?
+        if match(.else) { `else` = try statement() }
+        else { `else` = nil }
+        
+        return If(condition: condition, then: then, else: `else`)
     }
     
     private func block() throws -> Array<Statement> {
@@ -129,7 +147,7 @@ public class Parser {
     }
     
     private func assignment() throws -> Expression {
-        let expression = try equality()
+        let expression = try or()
         
         if match(.equal) {
             let equals = previousToken
@@ -141,6 +159,30 @@ public class Parser {
             }
             
             throw reportError("Invalid assignment target", token: equals)
+        }
+        
+        return expression
+    }
+    
+    private func or() throws -> Expression {
+        var expression = try and()
+        
+        while match(.or) {
+            let op = previousToken
+            let rhs = try and()
+            expression = Logical(lhs: expression, operator: op, rhs: rhs)
+        }
+        
+        return expression
+    }
+    
+    private func and() throws -> Expression {
+        var expression = try equality()
+        
+        while match(.and) {
+            let op = previousToken
+            let rhs = try equality()
+            expression = Logical(lhs: expression, operator: op, rhs: rhs)
         }
         
         return expression

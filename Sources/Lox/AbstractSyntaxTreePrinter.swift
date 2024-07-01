@@ -15,6 +15,14 @@ public struct AbstractSyntaxTreePrinter: StatementVisitor, ExpressionVisitor {
         parenthesize(name: ";", expressions: stmt.expression)
     }
     
+    public func visit(_ stmt: If) -> String {
+        guard let `else` = stmt.else else {
+            return parenthesize(name: "if", parts: stmt.condition, stmt.then)
+        }
+        
+        return parenthesize(name: "if-else", parts: stmt.condition, stmt.then, `else`)
+    }
+    
     public func visit(_ stmt: Block) -> String {
         var output = ""
         for statement in stmt.statements {
@@ -53,6 +61,10 @@ public struct AbstractSyntaxTreePrinter: StatementVisitor, ExpressionVisitor {
             return "nil"
         }
         return String(describing: value)
+    }
+    
+    public func visit(_ expr: Logical) -> String {
+        return "\(expr.lhs) \(expr.rhs) \(expr.operator.lexeme)"
     }
     
     public func visit(_ expr: Unary) -> String {

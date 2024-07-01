@@ -8,6 +8,10 @@
       "parameterField": "expression: Expression"
     },
     {
+      "name": "If",
+      "parameterField": "condition: Expression, then: Statement, `else`: Statement?"
+    },
+    {
       "name": "Block",
       "parameterField": "statements: Array<Statement>"
     },

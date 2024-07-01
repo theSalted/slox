@@ -41,6 +41,16 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
         }
     }
     
+    public func visit(_ stmt: If) -> Value? {
+        if determineTruthy(evaluate(stmt.condition)) {
+            execute(stmt: stmt.then)
+        } else if let `else` = stmt.else {
+            execute(stmt: `else`)
+        }
+        
+        return nil
+    }
+    
     public func visit(_ stmt: Block) -> Value? {
         let result = executeBlock(statements: stmt.statements, environment: Environment(enclosing: environment))
         return result
@@ -201,6 +211,18 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
         return .success(value)
     }
     
+    public func visit(_ expr: Logical) -> Value? {
+        let lhs = evaluate(expr.lhs)
+        
+        if expr.operator.type == TokenType.or {
+            if determineTruthy(lhs) { return lhs }
+        } else {
+            if !determineTruthy(lhs) { return lhs }
+        }
+        
+        return evaluate(expr.rhs)
+    }
+    
     public func visit(_ expr: Unary) -> Value? {
         let `operator` = expr.operator
         let line = `operator`.line
@@ -244,6 +266,7 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
 }
 
 extension Interpreter {
+    @discardableResult
     private func execute(stmt: Statement) -> Value? {
         let value = stmt.accept(visitor: self)
         return value

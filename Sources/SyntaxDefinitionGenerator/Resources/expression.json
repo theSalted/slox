@@ -20,6 +20,10 @@
       "parameterField": "value: Any?"
     },
     {
+      "name": "Logical",
+      "parameterField": "lhs: Expression, `operator`: Token, rhs: Expression"
+    },
+    {
       "name": "Unary",
       "parameterField": "`operator`: Token, rhs: Expression"
     },
