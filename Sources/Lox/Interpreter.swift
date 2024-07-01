@@ -43,9 +43,13 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
     
     public func visit(_ stmt: If) -> Value? {
         if determineTruthy(evaluate(stmt.condition)) {
-            execute(stmt.then)
+            if case .failure(let error) = execute(stmt.then) {
+                return .failure(error)
+            }
         } else if let `else` = stmt.else {
-            execute(`else`)
+            if case .failure(let error) = execute(`else`) {
+                return .failure(error)
+            }
         }
         
         return nil
@@ -262,7 +266,10 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
     
     public func visit(_ stmt: While) -> Value? {
         while determineTruthy(evaluate(stmt.condition)) {
-            execute(stmt.body)
+            
+            if case .failure(let error) = execute(stmt.body) {
+                return .failure(error)
+            }
         }
         return nil
     }
@@ -273,7 +280,6 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
 }
 
 extension Interpreter {
-    @discardableResult
     private func execute(_ stmt: Statement) -> Value? {
         let value = stmt.accept(visitor: self)
         return value
