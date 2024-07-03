@@ -53,6 +53,11 @@ public final class Environment {
             return
         }
         
+        if let enclosing {
+            try enclosing.assign(name: name, value: value)
+            return
+        }
+        
         throw InterpreterError.runtime(message: "Undefined variable '\(name.lexeme)'.", onLine: name.line, locationDescription: nil)
     }
 }

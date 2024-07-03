@@ -68,6 +68,8 @@ public class Parser {
     }
     
     private func forStatement() throws -> Statement {
+        let printer = AbstractSyntaxTreePrinter()
+        
         do { try consume(.leftParenthesis) }
         catch { throw reportError("Expect '(' after for 'for'.", token: latestToken) }
         
@@ -79,6 +81,10 @@ public class Parser {
         } else {
             initializer = try expressionStatement()
         }
+        
+        /*if let initializer {
+            print("Initializer: ", printer.toPrint(initializer))
+        }*/
         
         let condition: Expression = matchLatest(.semicolon) ? Literal(value: true) : try expression()
         do { try consume(.semicolon) }
@@ -99,6 +105,8 @@ public class Parser {
         if let initializer {
             body = Block(statements: [initializer, body])
         }
+        
+        print(printer.toPrint(body))
         
         return body
     }
