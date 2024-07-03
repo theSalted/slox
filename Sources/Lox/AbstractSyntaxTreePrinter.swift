@@ -6,9 +6,70 @@
 //
 
 import Foundation
-
 /// An unambiguous string representation os AST nodes.
-public struct AbstractSyntaxTreePrinter: StatementVisitor, ExpressionVisitor {
+struct AbstractSyntaxTreePrinter {
+    func toPrint(_ expr: Expression) -> String {
+        return expr.accept(visitor: self)
+    }
+    
+    func toPrint(_ stmt: Statement) -> String {
+        return stmt.accept(visitor: self)
+    }
+    
+    func toPrint(_ stmts: Array<Statement>) -> String {
+        var print = ""
+        for stmt in stmts {
+            print.append(toPrint(stmt))
+            print.append("\n")
+        }
+        return print
+    }
+    
+    public func parenthesize(name: String, expressions: Expression...) -> String {
+        var output = ""
+        
+        output.append("(\(name)")
+        
+        for expression in expressions {
+            output.append(" ")
+            output.append(expression.accept(visitor: self))
+        }
+        
+        output.append(")")
+        
+        return output
+    }
+    
+    private func parenthesize(name: String, parts: Any...) -> String {
+            var output = ""
+
+            output.append("(")
+
+            output.append(name)
+
+            for part in parts {
+                output.append(" ")
+
+                if let expr = part as? Expr {
+                    output.append(expr.accept(visitor: self))
+                } else if let stmt = part as? Statement {
+                    output.append(stmt.accept(visitor: self))
+                } else if let token = part as? Token {
+                    output.append(token.lexeme)
+                } else {
+                    output.append(String(describing: part))
+                }
+            }
+
+            output.append(")")
+
+            return output
+        }
+}
+
+
+
+extension AbstractSyntaxTreePrinter: StatementVisitor, ExpressionVisitor {
     
     // MARK: Statements
     public func visit(_ stmt: Expr) -> String {
@@ -78,51 +139,4 @@ public struct AbstractSyntaxTreePrinter: StatementVisitor, ExpressionVisitor {
     public func visit(_ stmt: While) -> String {
         parenthesize(name: "while", parts: stmt.condition, stmt.body)
     }
-}
-
-extension AbstractSyntaxTreePrinter {
-    func toString(expr: Expression) -> String {
-        return expr.accept(visitor: self)
-    }
-    
-    public func parenthesize(name: String, expressions: Expression...) -> String {
-        var output = ""
-        
-        output.append("(\(name)")
-        
-        for expression in expressions {
-            output.append(" ")
-            output.append(expression.accept(visitor: self))
-        }
-        
-        output.append(")")
-        
-        return output
-    }
-    
-    private func parenthesize(name: String, parts: Any...) -> String {
-            var output = ""
-
-            output.append("(")
-
-            output.append(name)
-
-            for part in parts {
-                output.append(" ")
-
-                if let expr = part as? Expr {
-                    output.append(expr.accept(visitor: self))
-                } else if let stmt = part as? Statement {
-                    output.append(stmt.accept(visitor: self))
-                } else if let token = part as? Token {
-                    output.append(token.lexeme)
-                } else {
-                    output.append(String(describing: part))
-                }
-            }
-
-            output.append(")")
-
-            return output
-        }
 }

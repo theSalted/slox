@@ -29,7 +29,7 @@ struct ParserTest {
         
         let printer = AbstractSyntaxTreePrinter()
         
-        let result = printer.toString(expr: expression)
+        let result = printer.toPrint(expression)
         
         #expect(!Lox.hadError)
         
