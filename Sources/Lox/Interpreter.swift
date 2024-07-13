@@ -8,7 +8,16 @@
 import OSLog
 
 public final class Interpreter: StatementVisitor, ExpressionVisitor {
-    private var environment = Environment()
+    private let globals = Environment()
+    private var environment: Environment
+    
+    init() {
+        environment = globals
+        
+        globals.define(name: "clock", value: NativeFunction { _ in
+            return .success(Double(DispatchTime.now().uptimeNanoseconds) / 1_000_000_000)
+        })
+    }
     
     func interpret(_ statements: Array<Statement>) {
         for statement in statements {
@@ -207,6 +216,38 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
             onLine: line,
             locationDescription: "at \(`operator`.lexeme)"
         ))
+    }
+    
+    public func visit(_ expr: Call) -> Value? {
+        let calleeResult = evaluate(expr.callee)
+        if case let .failure(error) = calleeResult {
+            // If calleeResult already has an error, propagate this one instead of creating a new one in the next lines.
+            // Is probably a "variable not found" error because the function hasn't been declared yet.
+            return calleeResult
+        }
+        
+        guard case let .success(callee) = calleeResult, let function = callee as? Callable else {
+            return .failure(InterpreterError.runtime(
+                message: "Can only call functions and classes",
+                onLine: expr.paren.line, locationDescription: nil))
+        }
+
+        var evaluatedArguments: Array<Any> = []
+        
+        for argument in expr.arguments {
+            let result = evaluate(argument)
+            guard case let .success(value) = result else {
+                return result
+            }
+            evaluatedArguments.append(value)
+        }
+        
+        guard evaluatedArguments.count == function.arity else {
+            return .failure(InterpreterError.runtime(
+                message: "Expected \(function.arity) arguments but got \(evaluatedArguments.count).", onLine: expr.paren.line, locationDescription: nil))
+        }
+        
+        return function.call(interpreter: self, arguments: evaluatedArguments)
     }
     
     public func visit(_ expr: Grouping) -> Value? {

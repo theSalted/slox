@@ -12,6 +12,10 @@
       "parameterField": "lhs: Expression, `operator`: Token, rhs: Expression"
     },
     {
+      "name": "Call",
+      "parameterField": "callee: Expression, paren: Token, arguments: Array<Expression>"
+    },
+    {
       "name": "Grouping",
       "parameterField": "expression: Expression"
     },

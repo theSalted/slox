@@ -8,6 +8,10 @@
       "parameterField": "expression: Expression"
     },
     {
+      "name": "Function",
+      "parameterField": "name: Token, parameters: Array<Token>, body: Array<Statement>"
+    },
+    {
       "name": "If",
       "parameterField": "condition: Expression, then: Statement, `else`: Statement?"
     },

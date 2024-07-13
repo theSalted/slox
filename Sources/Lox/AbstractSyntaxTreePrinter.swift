@@ -113,6 +113,10 @@ extension AbstractSyntaxTreePrinter: StatementVisitor, ExpressionVisitor {
         parenthesize(name: expr.operator.lexeme, expressions: expr.lhs, expr.rhs)
     }
     
+    public func visit(_ expr: Call) -> String {
+        return parenthesize(name: "call", parts: expr.callee, expr.arguments)
+    }
+    
     public func visit(_ expr: Grouping) -> String {
         parenthesize(name: "group", expressions: expr.expression)
     }

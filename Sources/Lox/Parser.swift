@@ -86,11 +86,11 @@ public class Parser {
             print("Initializer: ", printer.toPrint(initializer))
         }*/
         
-        let condition: Expression = matchLatest(.semicolon) ? Literal(value: true) : try expression()
+        let condition: Expression = check(.semicolon) ? Literal(value: true) : try expression()
         do { try consume(.semicolon) }
         catch { throw reportError("Expect ';' after loop condition.", token: latestToken) }
         
-        let increment: Expression? = matchLatest(.rightParenthesis) ? nil : try expression()
+        let increment: Expression? = check(.rightParenthesis) ? nil : try expression()
         do { try consume(.rightParenthesis) }
         catch { throw reportError("Expect ')' after for clauses.", token: latestToken) }
         
@@ -174,7 +174,7 @@ public class Parser {
     private func block() throws -> Array<Statement> {
         var statements = Array<Statement>()
         
-        while !matchLatest(.rightBrace) && !reachedEOF() {
+        while !check(.rightBrace) && !reachedEOF() {
             if let declaration = declaration() {
                 statements.append(declaration)
             }
@@ -271,7 +271,42 @@ public class Parser {
             return Unary(operator: `operator`, rhs: rhs)
         }
         
-        return try primary()
+        return try call()
+    }
+    
+    private func call() throws -> Expression {
+        var expression = try primary()
+        while true {
+            if match(.leftParenthesis) {
+                expression = try finishCall(expression)
+            } else {
+                break
+            }
+        }
+        
+        return expression
+    }
+    
+    private func finishCall(_ callee: Expression) throws -> Expression {
+        var arguments: Array<Expression> = []
+        
+        if !check(.rightParenthesis) {
+            repeat {
+                if arguments.count >= 255 {
+                    throw reportError("Can't have more than 255 arguments.", token: latestToken)
+                }
+                arguments.append(try expression())
+            } while match(.comma)
+        }
+        
+        let paren: Token
+        do {
+            paren = try consume(.rightParenthesis)
+        } catch {
+            throw reportError("Expect ')' after arguments", token: latestToken)
+        }
+        
+        return Call(callee: callee, paren: paren, arguments: arguments)
     }
     
     private func primary() throws -> Expression {
@@ -333,7 +368,7 @@ public extension Parser {
     }
     
     @discardableResult private func consume(_ type: TokenType) throws -> Token {
-        if matchLatest(type) {
+        if check(type) {
             return advance()
         }
         
@@ -341,7 +376,7 @@ public extension Parser {
     }
     
     /// Check if latest character matches given token
-    private func matchLatest(_ type: TokenType) -> Bool {
+    private func check(_ type: TokenType) -> Bool {
         if reachedEOF() { return false }
         return latestToken.type == type
     }
@@ -351,7 +386,7 @@ public extension Parser {
         advance advanceWhenMatched: Bool = true
     ) -> Bool {
         for type in types {
-            if matchLatest(type) && advanceWhenMatched {
+            if check(type) && advanceWhenMatched {
                 advance()
                 return true
             }
