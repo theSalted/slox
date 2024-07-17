@@ -30,11 +30,9 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
     
     func intercept(_ expr: Expression) {
         switch evaluate(expr) {
-        case .success(let result):
-            print(toString(result))
         case .failure(let error):
             Lox.reportError(error)
-        case .none:
+        default:
             break
         }
     }
@@ -90,7 +88,6 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
     public func visit(_ stmt: Return) -> Value? {
         guard let value = stmt.value, let evaluatedValue = evaluate(value)
         else { return .success(InterpreterReturn(NilAny)) }
-//        print("value: ", value)
         
         if case let .failure(error) = evaluatedValue {
             return .failure(error)
@@ -98,7 +95,6 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
         
         guard case let .success(extractedValue) = evaluatedValue
         else { return .success(InterpreterReturn(NilAny)) }
-//        print("extract value: ", extractedValue)
         
         return .success(InterpreterReturn(extractedValue))
     }
@@ -367,8 +363,6 @@ extension Interpreter {
     }
     
     func executeBlock(statements: Array<Statement>, environment: Environment) -> Value? {
-//        print("Block execution")
-        
         let previous = self.environment
         self.environment = environment
         
@@ -377,17 +371,11 @@ extension Interpreter {
         for statement in statements {
             let result = execute(statement)
             switch result {
-            case .success(let value):
-                if value is InterpreterReturn {
-//                    guard let containedValue = interpreterReturn.value else {
-//                        break
-//                    }
-//                    print("received value: ", value)
-                    return .success(value)
-                }
+            case .success(let value) where value is InterpreterReturn:
+                return .success(value)
             case .failure(let error):
                 return .failure(error)
-            case .none:
+            default:
                 break
             }
         }

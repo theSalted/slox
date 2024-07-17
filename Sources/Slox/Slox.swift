@@ -23,7 +23,9 @@ struct Slox: ParsableCommand {
     
     private static func runFile(_ path: URL) throws {
         let code = try String(contentsOf: path)
+        print("*****    Code    *****")
         print(code)
+        print("***** Run Result *****")
         Lox.runCode(code)
     }
 }

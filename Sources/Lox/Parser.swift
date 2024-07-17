@@ -70,8 +70,6 @@ public class Parser {
     }
     
     private func forStatement() throws -> Statement {
-        let printer = AbstractSyntaxTreePrinter()
-        
         do { try consume(.leftParenthesis) }
         catch { throw reportError("Expect '(' after for 'for'.", token: latestToken) }
         
@@ -107,8 +105,6 @@ public class Parser {
         if let initializer {
             body = Block(statements: [initializer, body])
         }
-        
-        print(printer.toPrint(body))
         
         return body
     }
