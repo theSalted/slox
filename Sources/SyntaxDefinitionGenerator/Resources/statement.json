@@ -20,6 +20,10 @@
       "parameterField": "statements: Array<Statement>"
     },
     {
+      "name": "Return",
+      "parameterField": "keyword: Token, value: Expression?"
+    },
+    {
       "name": "Var",
       "parameterField": "name: Token, initializer: Expression?"
     },

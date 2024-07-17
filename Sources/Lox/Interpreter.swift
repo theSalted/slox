@@ -8,7 +8,7 @@
 import OSLog
 
 public final class Interpreter: StatementVisitor, ExpressionVisitor {
-    private let globals = Environment()
+    var globals = Environment()
     private var environment: Environment
     
     init() {
@@ -44,29 +44,63 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
         switch evaluate(stmt.expression) {
             
         case .success(_), .none:
-            return nil
+            return .success(NilAny)
         case .failure(let error):
             return .failure(error)
         }
     }
     
+    public func visit(_ stmt: Function) -> Value? {
+        let function = LoxFunction(declaration: stmt)
+        environment.define(name: stmt.name.lexeme, value: function)
+        return .success(NilAny)
+    }
+    
     public func visit(_ stmt: If) -> Value? {
         if determineTruthy(evaluate(stmt.condition)) {
-            if case .failure(let error) = execute(stmt.then) {
+            let result = execute(stmt.then)
+            
+            switch result {
+            case .success(let value) where value is InterpreterReturn:
+                return .success(value)
+            case .failure(let error):
                 return .failure(error)
+            default: break
             }
         } else if let `else` = stmt.else {
-            if case .failure(let error) = execute(`else`) {
+            let result = execute(`else`)
+            
+            switch result {
+            case .success(let value) where value is InterpreterReturn:
+                return .success(value)
+            case .failure(let error):
                 return .failure(error)
+            default: break
             }
         }
         
-        return nil
+        return .success(NilAny)
     }
     
     public func visit(_ stmt: Block) -> Value? {
         let result = executeBlock(statements: stmt.statements, environment: Environment(enclosing: environment))
         return result
+    }
+    
+    public func visit(_ stmt: Return) -> Value? {
+        guard let value = stmt.value, let evaluatedValue = evaluate(value)
+        else { return .success(InterpreterReturn(NilAny)) }
+//        print("value: ", value)
+        
+        if case let .failure(error) = evaluatedValue {
+            return .failure(error)
+        }
+        
+        guard case let .success(extractedValue) = evaluatedValue
+        else { return .success(InterpreterReturn(NilAny)) }
+//        print("extract value: ", extractedValue)
+        
+        return .success(InterpreterReturn(extractedValue))
     }
     
     public func visit(_ stmt: Var) -> Value? {
@@ -104,12 +138,12 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
             
         case .success(let value):
             print(toString(value))
-            return nil
+            return .success(NilAny)
         case .failure(let error):
             return .failure(error)
         case .none:
             print(toString(nil))
-            return nil
+            return .success(NilAny)
         }
     }
     
@@ -220,7 +254,8 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
     
     public func visit(_ expr: Call) -> Value? {
         let calleeResult = evaluate(expr.callee)
-        if case let .failure(error) = calleeResult {
+            
+        if case .failure(_) = calleeResult {
             // If calleeResult already has an error, propagate this one instead of creating a new one in the next lines.
             // Is probably a "variable not found" error because the function hasn't been declared yet.
             return calleeResult
@@ -256,7 +291,7 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
     
     public func visit(_ expr: Literal) -> Value? {
         guard let value = expr.value else {
-            return nil
+            return .success(NilAny)
         }
         return .success(value)
     }
@@ -317,7 +352,7 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
                 return .failure(error)
             }
         }
-        return nil
+        return .success(NilAny)
     }
     
     public typealias Value = Result<Any, InterpreterError>
@@ -331,22 +366,32 @@ extension Interpreter {
         return value
     }
     
-    private func executeBlock(statements: Array<Statement>, environment: Environment) -> Value? {
+    func executeBlock(statements: Array<Statement>, environment: Environment) -> Value? {
+//        print("Block execution")
+        
         let previous = self.environment
         self.environment = environment
         
-        defer {
-            self.environment = previous
-        }
+        defer { self.environment = previous }
         
         for statement in statements {
             let result = execute(statement)
-            if case let .failure(error) = result {
+            switch result {
+            case .success(let value):
+                if value is InterpreterReturn {
+//                    guard let containedValue = interpreterReturn.value else {
+//                        break
+//                    }
+//                    print("received value: ", value)
+                    return .success(value)
+                }
+            case .failure(let error):
                 return .failure(error)
+            case .none:
+                break
             }
         }
-        
-        return nil
+        return .success(NilAny)
     }
     
     private func evaluate(_ expr: Expression) -> Value? {
@@ -425,6 +470,19 @@ extension Interpreter {
         }
         return true
     }
+}
+
+public struct InterpreterReturn {
+    let value: Any?
+    
+    init(_ value: Any?) {
+        self.value = value
+    }
+    
+    init() {
+        self.value = nil
+    }
+    
 }
 
 public enum InterpreterError: Error {

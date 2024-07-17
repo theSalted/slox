@@ -14,8 +14,10 @@ public protocol StatementVisitor {
     associatedtype StatementVisitorReturn
 
     func visit(_ stmt: Expr) -> StatementVisitorReturn
+    func visit(_ stmt: Function) -> StatementVisitorReturn
     func visit(_ stmt: If) -> StatementVisitorReturn
     func visit(_ stmt: Block) -> StatementVisitorReturn
+    func visit(_ stmt: Return) -> StatementVisitorReturn
     func visit(_ stmt: Var) -> StatementVisitorReturn
     func visit(_ stmt: While) -> StatementVisitorReturn
     func visit(_ stmt: Print) -> StatementVisitorReturn
@@ -26,6 +28,22 @@ public struct Expr: Statement {
 
     init(expression: Expression) {
         self.expression = expression
+    }
+
+    public func accept<V: StatementVisitor, R>(visitor: V) -> R where R == V.StatementVisitorReturn {
+        return visitor.visit(self)
+    }
+}
+
+public struct Function: Statement {
+    let name: Token
+    let parameters: Array<Token>
+    let body: Array<Statement>
+
+    init(name: Token, parameters: Array<Token>, body: Array<Statement>) {
+        self.name = name
+        self.parameters = parameters
+        self.body = body
     }
 
     public func accept<V: StatementVisitor, R>(visitor: V) -> R where R == V.StatementVisitorReturn {
@@ -54,6 +72,20 @@ public struct Block: Statement {
 
     init(statements: Array<Statement>) {
         self.statements = statements
+    }
+
+    public func accept<V: StatementVisitor, R>(visitor: V) -> R where R == V.StatementVisitorReturn {
+        return visitor.visit(self)
+    }
+}
+
+public struct Return: Statement {
+    let keyword: Token
+    let value: Expression?
+
+    init(keyword: Token, value: Expression?) {
+        self.keyword = keyword
+        self.value = value
     }
 
     public func accept<V: StatementVisitor, R>(visitor: V) -> R where R == V.StatementVisitorReturn {

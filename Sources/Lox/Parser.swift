@@ -47,7 +47,8 @@ public class Parser {
     // MARK: Statements
     private func declaration() -> Statement? {
         do {
-            if (match(.var)) { return try variableDeclaration() }
+            if match(.fun) { return try function(kind: "function") }
+            if match(.var) { return try variableDeclaration() }
             return try statement()
         } catch {
             synchronize()
@@ -59,6 +60,7 @@ public class Parser {
         if match(.for) { return try forStatement() }
         if match(.if) { return try ifStatement() }
         if match(.print) { return try printStatement() }
+        if match(.return) { return try returnStatement() }
         if match(.while) { return try whileStatement() }
         if match(.leftBrace) {
             return Block(statements: try block())
@@ -154,6 +156,37 @@ public class Parser {
         return Expr(expression: expression)
     }
     
+    private func function(kind: String) throws -> Function {
+        let name: Token
+        do { name = try consume(.identifier) }
+        catch { throw reportError("Expect \(kind) name.", token: latestToken) }
+        
+        do { try consume(.leftParenthesis) }
+        catch { throw reportError("Expect '(' after \(kind) name.", token: latestToken) }
+        
+        var parameters : Array<Token> = []
+        
+        if !check(.rightParenthesis) {
+            repeat {
+                if parameters.count >= 255 {
+                    throw reportError("Can't have more than 255 parameters", token: latestToken)
+                }
+                do { parameters.append(try consume(.identifier)) }
+                catch { throw reportError("Expect parameter name", token: latestToken) }
+            } while match(.comma)
+        }
+        
+        do { try consume(.rightParenthesis) }
+        catch { throw reportError("Expect ')' after parameters.", token: latestToken) }
+        
+        do { try consume(.leftBrace) }
+        catch { throw reportError("Expect '{' before \(kind) body.", token: latestToken) }
+        
+        let body = try block()
+        
+        return Function(name: name, parameters: parameters, body: body)
+    }
+    
     private func ifStatement() throws -> Statement {
         do { try consume(.leftParenthesis) }
         catch { throw reportError("Expect '(' after 'if'.", token: latestToken) }
@@ -187,6 +220,19 @@ public class Parser {
         }
         
         return statements
+    }
+    
+    private func returnStatement() throws -> Statement {
+        let keyword = previousToken
+        var value: Expression? = nil
+        if !check(.semicolon) {
+            value = try expression()
+        }
+        
+        do { try consume(.semicolon) }
+        catch { throw reportError("Expect ';' after return value.", token: latestToken) }
+        
+        return Return(keyword: keyword, value: value)
     }
     
     private func printStatement() throws -> Statement {

@@ -76,6 +76,24 @@ extension AbstractSyntaxTreePrinter: StatementVisitor, ExpressionVisitor {
         parenthesize(name: ";", expressions: stmt.expression)
     }
     
+    public func visit(_ stmt: Function) -> String {
+        var result = "(fun \(stmt.name.lexeme)"
+        
+        result += "("
+        
+        for parameter in stmt.parameters {
+            result += "\(parameter.lexeme)"
+        }
+        
+        result += ")"
+        
+        for body in stmt.body {
+            result += body.accept(visitor: self)
+        }
+        
+        return result
+    }
+    
     public func visit(_ stmt: If) -> String {
         guard let `else` = stmt.else else {
             return parenthesize(name: "if", parts: stmt.condition, stmt.then)
@@ -90,6 +108,13 @@ extension AbstractSyntaxTreePrinter: StatementVisitor, ExpressionVisitor {
             output.append(statement.accept(visitor: self))
         }
         return "(block \(output))"
+    }
+    
+    public func visit(_ stmt: Return) -> String {
+        guard let value = stmt.value else {
+            return "(return)"
+        }
+        return parenthesize(name: "return", parts: value)
     }
     
     public func visit(_ stmt: Var) -> String {
