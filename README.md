@@ -29,7 +29,7 @@ This project follows the book [Crafting Interpreters](http://www.craftinginterpr
   - [x] Basic expression
   - [ ] Extended expressions (comma operator, ternary operator `?:`)
   - [ ] Error productions to handle each binary operator appearing without a left-hand operand
-  - [ ] Statement
+  - [x] Statement
   - [ ] Error recovery
   - [x] Basic Tests
   - [ ] Comprehensive Tests
@@ -40,7 +40,7 @@ This project follows the book [Crafting Interpreters](http://www.craftinginterpr
   - [x] Scoping
   - [x] Control Flows
   - [ ] Break and Continue
-  - [ ] Functions
+  - [x] Functions
   - [ ] Classes
   - [ ] Expression support for REPL mode
 
