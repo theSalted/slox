@@ -375,9 +375,9 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
 }
 
 extension Interpreter {
-    private func execute(_ stmt: Statement) -> Value? {
-        let value = stmt.accept(visitor: self)
-        return value
+    
+    func resolve(_ expr: Expression, depth: Int) {
+        locals[expr.hashable] = depth
     }
     
     func executeBlock(statements: Array<Statement>, environment: Environment) -> Value? {
@@ -400,8 +400,9 @@ extension Interpreter {
         return .success(NilAny)
     }
     
-    func resolve(_ expr: Expression, depth: Int) {
-        locals[expr.hashable] = depth
+    private func execute(_ stmt: Statement) -> Value? {
+        let value = stmt.accept(visitor: self)
+        return value
     }
     
     private func evaluate(_ expr: Expression) -> Value? {
@@ -414,21 +415,6 @@ extension Interpreter {
         } else {
             return try globals.get(name)
         }
-    }
-    
-    private func toString(_ value: Any?) -> String {
-        guard let value = value else { return "nil" }
-
-        // Hack. Work around Swift adding ".0" to integer-valued doubles.
-        if value is Double {
-            var text = String(describing: value)
-            if text.hasSuffix(".0") {
-                text = String(text[..<text.index(text.endIndex, offsetBy: -2)])
-            }
-            return text
-        }
-
-        return String(describing: value)
     }
     
     private func determineEqualish(_ lhs: Value?, _ rhs: Value?) -> Bool {
@@ -487,6 +473,21 @@ extension Interpreter {
             return boolean
         }
         return true
+    }
+    
+    private func toString(_ value: Any?) -> String {
+        guard let value = value else { return "nil" }
+
+        // Hack. Work around Swift adding ".0" to integer-valued doubles.
+        if value is Double {
+            var text = String(describing: value)
+            if text.hasSuffix(".0") {
+                text = String(text[..<text.index(text.endIndex, offsetBy: -2)])
+            }
+            return text
+        }
+
+        return String(describing: value)
     }
 }
 
