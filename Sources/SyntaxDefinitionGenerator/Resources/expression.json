@@ -2,6 +2,9 @@
 {
   "baseName": "Expression",
   "baseAcronym": "expr",
+  "access": "public",
+  "construct": "final class",
+  "conformances": ["AnyObject"],
   "types": [
     {
       "name": "Assignment",

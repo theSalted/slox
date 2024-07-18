@@ -17,7 +17,7 @@ public protocol StatementVisitor {
     func visit(_ stmt: Function) -> StatementVisitorReturn
     func visit(_ stmt: If) -> StatementVisitorReturn
     func visit(_ stmt: Block) -> StatementVisitorReturn
-    func visit(_ stmt: Return) -> StatementVisitorReturn
+    func visit(_ stmt: LoxReturn) -> StatementVisitorReturn
     func visit(_ stmt: Var) -> StatementVisitorReturn
     func visit(_ stmt: While) -> StatementVisitorReturn
     func visit(_ stmt: Print) -> StatementVisitorReturn
@@ -79,7 +79,7 @@ public struct Block: Statement {
     }
 }
 
-public struct Return: Statement {
+public struct LoxReturn: Statement {
     let keyword: Token
     let value: Expression?
 

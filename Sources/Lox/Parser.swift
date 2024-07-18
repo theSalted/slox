@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class Parser {
+public final class Parser {
     let tokens: [Token]
     var currentPosition: Int = 0
     
@@ -228,7 +228,7 @@ public class Parser {
         do { try consume(.semicolon) }
         catch { throw reportError("Expect ';' after return value.", token: latestToken) }
         
-        return Return(keyword: keyword, value: value)
+        return LoxReturn(keyword: keyword, value: value)
     }
     
     private func printStatement() throws -> Statement {

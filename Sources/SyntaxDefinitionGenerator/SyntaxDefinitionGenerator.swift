@@ -13,13 +13,13 @@ struct SyntaxDefinitionGenerator {
     let definition: Definition
     let outputDirectory: URL?
     let printer = CodePrinter()
-    let isPublic: Bool
     
     /// Initializes a new generator.
-    init(_ definition: Definition, path outputDirectory: URL? = nil, isPublic: Bool = true) {
+    init(_ definition: Definition,
+         path outputDirectory: URL? = nil
+    ) {
         self.outputDirectory = outputDirectory
         self.definition = definition
-        self.isPublic = isPublic
     }
     
     /// Writes the tree structure to Swift code.
@@ -49,7 +49,12 @@ struct SyntaxDefinitionGenerator {
     
     /// Writes the base protocol for the tree.
     private func writeProtocol() {
-        printer.writeLine((isPublic ? "public " : "") + "protocol \(definition.baseName) {")
+        printer.writeLine(definition.access.rawValue +
+                          (definition.access.rawValue != "" ? " " : "") +
+                          "protocol \(definition.baseName)" +
+                          (definition.conformances.isEmpty ? "" : ": ") +
+                          definition.conformances.joined(separator: ",") +
+                          " {")
         
         printer.indent()
         
@@ -62,7 +67,10 @@ struct SyntaxDefinitionGenerator {
     
     /// Writes the code for a specific type in the tree.
     private func writeType(_ name: String, parameterField: String) {
-        printer.writeLine((isPublic ? "public " : "") + "struct \(name): \(definition.baseName) {")
+        printer.writeLine(definition.access.rawValue +
+                          (definition.access.rawValue != "" ? " " : "") +
+                          definition.construct.rawValue +
+                          " \(name): \(definition.baseName) {")
         
         let parameters = parameterField.components(separatedBy: ", ").filter({ $0.isEmpty == false })
         
@@ -92,7 +100,9 @@ struct SyntaxDefinitionGenerator {
         
         printer.emptyLine()
         
-        printer.writeLine((isPublic ? "public " : "") + acceptFunctionDefinition() + " {")
+        printer.writeLine(definition.access.rawValue +
+                          (definition.access.rawValue != "" ? " " : "") +
+                          acceptFunctionDefinition() + " {")
         
         printer.indent()
         
@@ -109,7 +119,9 @@ struct SyntaxDefinitionGenerator {
     
     /// Writes the visitor protocol for the tree.
     private func writeVisitorProtocol() {
-        printer.writeLine((isPublic ? "public " : "") + "protocol \(visitorProtocolName()) {")
+        printer.writeLine(definition.access.rawValue +
+                          (definition.access.rawValue != "" ? " " : "") +
+                          "protocol \(visitorProtocolName()) {")
         
         printer.indent()
        
@@ -143,10 +155,27 @@ struct SyntaxDefinitionGenerator {
     }
 }
 
+/// Construct types
+enum Construct: String, Codable {
+    case `struct` = "struct"
+    case `class` = "class"
+    case finalClass = "final class"
+}
+
+/// Access types
+enum Access: String, Codable {
+    case none = ""
+    case `private` = "private"
+    case `public` = "public"
+}
+
 /// Represents an abstract syntax tree.
 struct Definition: Codable {
     let baseName: String
     let baseAcronym: String?
+    let access: Access
+    let construct: Construct
+    let conformances: [String]
     let types: [TypeDefinition]
 }
 

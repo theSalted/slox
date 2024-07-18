@@ -10,6 +10,7 @@ import OSLog
 public final class Interpreter: StatementVisitor, ExpressionVisitor {
     var globals = Environment()
     private var environment: Environment
+    private var locals: Dictionary<HashableExpression, Int> = [:]
     
     init() {
         environment = globals
@@ -85,7 +86,7 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
         return result
     }
     
-    public func visit(_ stmt: Return) -> Value? {
+    public func visit(_ stmt: LoxReturn) -> Value? {
         guard let value = stmt.value, let evaluatedValue = evaluate(value)
         else { return .success(InterpreterReturn(NilAny)) }
         
@@ -149,7 +150,6 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
         let name = expr.name
         let value: Any
         switch result {
-            
         case .success(let _value):
             value = _value
         case .failure(let error):
@@ -161,14 +161,32 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
                     onLine: name.line,
                     locationDescription: nil))
         }
-        do { try environment.assign(name: expr.name, value: value) }
-        catch {
-            return .failure(error as? InterpreterError ??
-                            InterpreterError.runtime(
-                                message: "Undefined variable '\(name.lexeme)'.", 
-                                onLine: name.line,
-                                locationDescription: nil))
+        
+        if let distance = locals[expr.hashable] {
+            do { try environment.assign(
+                name: expr.name,
+                value: value,
+                at: distance)}
+            catch { return .failure(
+                error as? InterpreterError ??
+                InterpreterError.runtime(
+                    message: "Undefined variable '\(name.lexeme)'.",
+                    onLine: name.line,
+                    locationDescription: nil)
+                )}
+        } else {
+            do { try globals.assign(
+                name: expr.name,
+                value: value)}
+            catch { return .failure(
+                error as? InterpreterError ??
+                InterpreterError.runtime(
+                    message: "Undefined variable '\(name.lexeme)'.",
+                    onLine: name.line,
+                    locationDescription: nil)
+                )}
         }
+        
         return .success(value)
     }
     
@@ -331,13 +349,13 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
     
     public func visit(_ expr: Variable) -> Value? {
         let name = expr.name
-        if let value = try? environment.get(name) {
+        if let value = try? lookUpVariable(name, expr: expr) {
             return .success(value)
         } else {
             return .failure(InterpreterError.runtime(
-                                message: "Undefined variable '\(name.lexeme)'.",
-                                onLine: name.line,
-                                locationDescription: nil))
+                message: "Undefined variable '\(name.lexeme)'.",
+                onLine: name.line,
+                locationDescription: nil))
         }
     }
     
@@ -382,8 +400,20 @@ extension Interpreter {
         return .success(NilAny)
     }
     
+    func resolve(_ expr: Expression, depth: Int) {
+        locals[expr.hashable] = depth
+    }
+    
     private func evaluate(_ expr: Expression) -> Value? {
         return expr.accept(visitor: self)
+    }
+    
+    private func lookUpVariable(_ name: Token, expr: Expression) throws -> Any {
+        if let distance = locals[expr.hashable] {
+            return try environment.get(name, at: distance)
+        } else {
+            return try globals.get(name)
+        }
     }
     
     private func toString(_ value: Any?) -> String {

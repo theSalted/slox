@@ -11,7 +11,7 @@ import OSLog
 #endif
 
 /// A class responsible for scanning and tokenizing source code for the Lox interpreter.
-public class Scanner {
+public final class Scanner {
     private let source: String
     private var tokens: [Token] = []
     private var startIndex: String.Index

@@ -47,6 +47,17 @@ public final class Environment {
         throw InterpreterError.runtime(message: "Undefined variable \(name.lexeme).", onLine: name.line, locationDescription: nil)
     }
     
+    func get(_ name: Token, at distance: Int) throws -> Any {
+        guard let environment = try? getAncestor(distance) else {
+            throw InterpreterError.runtime(
+                message: "Couldn't find variable in given scope",
+                onLine: name.line,
+                locationDescription: nil)
+        }
+        
+        return try environment.get(name)
+    }
+    
     func assign(name: Token, value: Any) throws {
         if values.contains(where: { key, value in key == name.lexeme}) {
             values[name.lexeme] = value
@@ -60,4 +71,24 @@ public final class Environment {
         
         throw InterpreterError.runtime(message: "Undefined variable '\(name.lexeme)'.", onLine: name.line, locationDescription: nil)
     }
+    
+    func assign(name: Token, value: Any, at distance: Int) throws {
+        let environment = try getAncestor(distance)
+        environment.values[name.lexeme] = value
+    }
+    
+    private func getAncestor(_ distance: Int) throws -> Environment {
+        var environment = self
+        for _ in 0 ..< distance {
+            guard let enclosedEnvironment = environment.enclosing else {
+                throw EnvironmentError.ancestorNotExist
+            }
+            environment = enclosedEnvironment
+        }
+        return environment
+    }
+}
+
+enum EnvironmentError: Error {
+    case ancestorNotExist
 }

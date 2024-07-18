@@ -110,7 +110,7 @@ extension AbstractSyntaxTreePrinter: StatementVisitor, ExpressionVisitor {
         return "(block \(output))"
     }
     
-    public func visit(_ stmt: Return) -> String {
+    public func visit(_ stmt: LoxReturn) -> String {
         guard let value = stmt.value else {
             return "(return)"
         }

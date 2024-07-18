@@ -27,6 +27,11 @@ public struct Lox {
         
         if (hadError) { return }
         
+        let resolver = Resolver(interpreter: interpreter)
+        resolver.resolve(statements)
+        
+        if (hadError) { return }
+        
         interpreter.interpret(statements)
     }
     

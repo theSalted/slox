@@ -43,6 +43,11 @@ This project follows the book [Crafting Interpreters](http://www.craftinginterpr
   - [x] Functions
   - [ ] Classes
   - [ ] Expression support for REPL mode
+- [x] Resolver
+  - [x] Static Analysis
+  - [x] Top-level return
+  - [x] Undefined Variable
+  - [x] Local Scope variable declaration
 
 ## Reference
 - [Original Implementation](https://github.com/munificent/craftinginterpreters)
