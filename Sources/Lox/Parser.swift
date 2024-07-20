@@ -280,6 +280,10 @@ public final class Parser {
             if let variable = expression as? Variable  {
                 let name = variable.name
                 return Assignment(name: name, value: value)
+            } else if let get = expression as? Get {
+                return Set(object: get.object, 
+                           name: get.name,
+                           value: value)
             }
             
             throw reportError("Invalid assignment target", token: equals)

@@ -5,7 +5,7 @@
 //  Created by Yuhao Chen on 7/20/24.
 //
 
-struct LoxInstance {
+class LoxInstance {
     private let `class`: LoxClass
     private var fields = Dictionary<String, Interpreter.Value>()
     
@@ -20,6 +20,10 @@ struct LoxInstance {
         
         return .failure(InterpreterError.runtime(
             message: "Undefined property '\(name.lexeme)'", onLine: name.line, locationDescription: nil))
+    }
+    
+    func set(_ name: Token, value: Interpreter.Value) {
+        fields[name.lexeme] = value
     }
 }
 

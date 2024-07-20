@@ -154,6 +154,10 @@ extension AbstractSyntaxTreePrinter: StatementVisitor, ExpressionVisitor {
         return parenthesize(name: ".", parts: expr.object, expr.name.lexeme)
     }
     
+    func visit(_ expr: Set) -> String {
+        return parenthesize(name: "=", parts: expr.object, expr.name.lexeme, expr.value)
+    }
+    
     public func visit(_ expr: Grouping) -> String {
         parenthesize(name: "group", expressions: expr.expression)
     }

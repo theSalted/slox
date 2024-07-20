@@ -121,6 +121,11 @@ public final class Resolver: ExpressionVisitor, StatementVisitor {
         resolve(expr.object)
     }
     
+    public func visit(_ expr: Set) -> Void {
+        resolve(expr.value)
+        resolve(expr.object)
+    }
+    
     public func visit(_ expr: Grouping) -> Void {
         resolve(expr.expression)
     }

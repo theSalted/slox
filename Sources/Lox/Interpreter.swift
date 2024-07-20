@@ -330,6 +330,28 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
         return field
     }
     
+    public func visit(_ expr: Set) -> Value? {
+        let object = evaluate(expr.object)
+        
+        guard case let .success(objectValue) = object,
+              let instance = objectValue as? LoxInstance else {
+            return .failure(InterpreterError.runtime(message: "Only instances have filed.", onLine: expr.name.line, locationDescription: nil))
+        }
+        
+        let value: Value
+        switch evaluate(expr.value) {
+        case .success(let result):
+            value = .success(result)
+        case .failure(let error):
+            return .failure(error)
+        case .none:
+            value = .success(NilAny)
+        }
+        
+        instance.set(expr.name, value: value)
+        return .success(value)
+    }
+    
     public func visit(_ expr: Grouping) -> Value? {
         evaluate(expr.expression)
     }
