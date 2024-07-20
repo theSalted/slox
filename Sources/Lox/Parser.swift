@@ -47,6 +47,7 @@ public final class Parser {
     // MARK: Statements
     private func declaration() -> Statement? {
         do {
+            if match(.class) { return try classDeclaration() }
             if match(.fun) { return try function(kind: "function") }
             if match(.var) { return try variableDeclaration() }
             return try statement()
@@ -54,6 +55,27 @@ public final class Parser {
             synchronize()
             return nil
         }
+    }
+    
+    private func classDeclaration() throws -> Statement {
+        guard let name = try? consume(.identifier) else {
+            throw reportError("Expect class name.", token: latestToken)
+        }
+        
+        do { try consume(.leftBrace) }
+        catch { throw reportError("Expect '{' before class body.", token: latestToken)}
+        
+        var methods = Array<Function>()
+        
+        while !check(.rightBrace) && !reachedEOF() {
+            let method = try function(kind: "method")
+            methods.append(method)
+        }
+        
+        do { try consume(.rightBrace) }
+        catch { throw reportError("Expect '}' after class body.", token: latestToken) }
+        
+        return Class(name: name, methods: methods)
     }
     
     private func statement() throws -> Statement {
@@ -321,6 +343,11 @@ public final class Parser {
         while true {
             if match(.leftParenthesis) {
                 expression = try finishCall(expression)
+            } else if match(.dot) {
+                do { let name = try consume(.identifier) }
+                catch { throw reportError(
+                    "Expect property name after'.'.",
+                    token: latestToken)}
             } else {
                 break
             }

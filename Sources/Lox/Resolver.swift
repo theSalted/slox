@@ -40,6 +40,11 @@ public final class Resolver: ExpressionVisitor, StatementVisitor {
         endScope()
     }
     
+    public func visit(_ stmt: Class) -> Void {
+        declare(stmt.name)
+        define(stmt.name)
+    }
+    
     public func visit(_ stmt: Var) -> Void {
         declare(stmt.name)
         if let initializer = stmt.initializer  {
@@ -110,6 +115,10 @@ public final class Resolver: ExpressionVisitor, StatementVisitor {
         for argument in expr.arguments {
             resolve(argument)
         }
+    }
+    
+    public func visit(_ expr: Get) -> Void {
+        resolve(expr.object)
     }
     
     public func visit(_ expr: Grouping) -> Void {

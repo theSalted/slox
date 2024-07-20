@@ -86,6 +86,23 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
         return result
     }
     
+    public func visit(_ stmt: Class) -> Value? {
+        environment.define(name: stmt.name.lexeme, value: NilAny)
+        
+        let `class` = LoxClass(stmt.name.lexeme)
+        
+        do { try environment.assign(name: stmt.name, value: `class`) }
+        catch { return .failure(
+            error as? InterpreterError ??
+            InterpreterError.runtime( /*This should never happen*/
+                message: "Something went wrong while declaring your class",
+                onLine: stmt.name.line,
+                locationDescription: nil)
+        )}
+        
+        return .success(NilAny)
+    }
+    
     public func visit(_ stmt: LoxReturn) -> Value? {
         guard let value = stmt.value, let evaluatedValue = evaluate(value)
         else { return .success(InterpreterReturn(NilAny)) }
@@ -111,7 +128,7 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
                 return .failure(error)
             case .none:
                 return .failure(InterpreterError.runtime(
-                    message: "variable must be initialized",
+                    message: "Variable must be initialized",
                     onLine: stmt.name.line,
                     locationDescription: nil
                 ))
@@ -119,7 +136,7 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
             }
         } else {
             return .failure(InterpreterError.runtime(
-                message: "variable must be initialized",
+                message: "Variable must be initialized",
                 onLine: stmt.name.line,
                 locationDescription: nil
             ))
@@ -157,7 +174,7 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
         case .none:
             return .failure(
                 InterpreterError.runtime(
-                    message: "Assignment can't be resolved",
+                    message: "Expression after = must not be nil",
                     onLine: name.line,
                     locationDescription: nil))
         }
@@ -170,7 +187,7 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
             catch { return .failure(
                 error as? InterpreterError ??
                 InterpreterError.runtime(
-                    message: "Undefined variable '\(name.lexeme)'.",
+                    message: "Something went wrong while assigning variable '\(name.lexeme)' to environment.",
                     onLine: name.line,
                     locationDescription: nil)
                 )}
@@ -181,7 +198,7 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
             catch { return .failure(
                 error as? InterpreterError ??
                 InterpreterError.runtime(
-                    message: "Undefined variable '\(name.lexeme)'.",
+                    message: "Something went wrong while assigning variable '\(name.lexeme)' to environment.",
                     onLine: name.line,
                     locationDescription: nil)
                 )}
@@ -297,6 +314,20 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
         }
         
         return function.call(interpreter: self, arguments: evaluatedArguments)
+    }
+    
+    public func visit(_ expr: Get) -> Value? {
+        let evaluatedObject = evaluate(expr.object)
+        
+        guard case let .success(object) = evaluatedObject, let instance = object as? LoxInstance else {
+            return .failure(InterpreterError.runtime(
+                message: "Only instances have properties.",
+                onLine: expr.name.line,
+                locationDescription: nil))
+        }
+        
+        let field = instance.get(expr.name)
+        return field
     }
     
     public func visit(_ expr: Grouping) -> Value? {

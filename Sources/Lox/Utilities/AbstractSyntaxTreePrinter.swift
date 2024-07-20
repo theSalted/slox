@@ -110,6 +110,14 @@ extension AbstractSyntaxTreePrinter: StatementVisitor, ExpressionVisitor {
         return "(block \(output))"
     }
     
+    func visit(_ stmt: Class) -> String {
+        var output = "(class "
+        output += stmt.name.lexeme
+        
+        output += ")"
+        return output
+    }
+    
     public func visit(_ stmt: LoxReturn) -> String {
         guard let value = stmt.value else {
             return "(return)"
@@ -140,6 +148,10 @@ extension AbstractSyntaxTreePrinter: StatementVisitor, ExpressionVisitor {
     
     public func visit(_ expr: Call) -> String {
         return parenthesize(name: "call", parts: expr.callee, expr.arguments)
+    }
+    
+    func visit(_ expr: Get) -> String {
+        return parenthesize(name: ".", parts: expr.object, expr.name.lexeme)
     }
     
     public func visit(_ expr: Grouping) -> String {

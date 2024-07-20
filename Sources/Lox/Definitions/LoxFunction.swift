@@ -34,8 +34,10 @@ struct LoxFunction: Callable {
         
         return result
     }
-    
-    func toString() -> String {
+}
+
+extension LoxFunction: CustomDebugStringConvertible {
+    var debugDescription: String {
         return "<fn \(declaration.name.lexeme) >"
     }
 }

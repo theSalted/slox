@@ -19,6 +19,10 @@
       "parameterField": "callee: Expression, paren: Token, arguments: Array<Expression>"
     },
     {
+      "name": "Get",
+      "parameterField": "object: Expression, name: Token"
+    },
+    {
       "name": "Grouping",
       "parameterField": "expression: Expression"
     },

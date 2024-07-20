@@ -23,6 +23,10 @@
       "parameterField": "statements: Array<Statement>"
     },
     {
+      "name": "Class",
+      "parameterField": "name: Token, methods: Array<Function>"
+    },
+    {
       "name": "LoxReturn",
       "parameterField": "keyword: Token, value: Expression?"
     },
