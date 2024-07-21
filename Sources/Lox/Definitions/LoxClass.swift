@@ -7,9 +7,11 @@
 
 struct LoxClass: Callable {
     let name: String
+    let methods: Dictionary<String, LoxFunction>
     
-    init(_ name: String) {
+    init(_ name: String, methods: Dictionary<String, LoxFunction>) {
         self.name = name
+        self.methods = methods
     }
     
     var arity: Int {
@@ -20,6 +22,10 @@ struct LoxClass: Callable {
         let instance = LoxInstance(self)
         
         return .success(instance)
+    }
+    
+    func findMethod(name: String) -> LoxFunction? {
+        return methods[name]
     }
 }
 

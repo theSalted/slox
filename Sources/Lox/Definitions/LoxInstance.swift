@@ -18,6 +18,10 @@ class LoxInstance {
             return field
         }
         
+        if let method = `class`.findMethod(name: name.lexeme) {
+            return .success(method)
+        }
+        
         return .failure(InterpreterError.runtime(
             message: "Undefined property '\(name.lexeme)'", onLine: name.line, locationDescription: nil))
     }

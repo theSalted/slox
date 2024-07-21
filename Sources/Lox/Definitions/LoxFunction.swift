@@ -7,12 +7,15 @@
 
 struct LoxFunction: Callable {
     let declaration: Function
+    let closure: Environment
+    
     var arity: Int {
         return declaration.parameters.count
     }
     
-    init(declaration: Function) {
+    init(declaration: Function, closure: Environment) {
         self.declaration = declaration
+        self.closure = closure
     }
     
     func call(interpreter: Interpreter, arguments: Array<Any>) -> Interpreter.Value? {

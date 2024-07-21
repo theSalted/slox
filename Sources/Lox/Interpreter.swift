@@ -50,7 +50,7 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
     }
     
     public func visit(_ stmt: Function) -> Value? {
-        let function = LoxFunction(declaration: stmt)
+        let function = LoxFunction(declaration: stmt, closure: environment)
         environment.define(name: stmt.name.lexeme, value: function)
         return .success(NilAny)
     }
@@ -89,8 +89,14 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
     public func visit(_ stmt: Class) -> Value? {
         environment.define(name: stmt.name.lexeme, value: NilAny)
         
-        let `class` = LoxClass(stmt.name.lexeme)
+        var methods = Dictionary<String, LoxFunction>()
         
+        for method in stmt.methods {
+            let function = LoxFunction(declaration: method, closure: environment)
+            methods[method.name.lexeme] = function
+        }
+        
+        let `class` = LoxClass(stmt.name.lexeme, methods: methods)
         do { try environment.assign(name: stmt.name, value: `class`) }
         catch { return .failure(
             error as? InterpreterError ??

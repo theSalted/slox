@@ -43,6 +43,11 @@ public final class Resolver: ExpressionVisitor, StatementVisitor {
     public func visit(_ stmt: Class) -> Void {
         declare(stmt.name)
         define(stmt.name)
+        
+        for method in stmt.methods {
+            let declaration = FunctionType.method
+            resolveFunction(method, type: .method)
+        }
     }
     
     public func visit(_ stmt: Var) -> Void {
@@ -199,6 +204,6 @@ extension Resolver {
     }
     
     private enum FunctionType {
-        case none, function
+        case none, function, method
     }
 }

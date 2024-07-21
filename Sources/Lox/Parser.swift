@@ -348,7 +348,10 @@ public final class Parser {
             if match(.leftParenthesis) {
                 expression = try finishCall(expression)
             } else if match(.dot) {
-                do { let name = try consume(.identifier) }
+                do {
+                    let name = try consume(.identifier)
+                    expression = Get(object: expression, name: name)
+                }
                 catch { throw reportError(
                     "Expect property name after'.'.",
                     token: latestToken)}
