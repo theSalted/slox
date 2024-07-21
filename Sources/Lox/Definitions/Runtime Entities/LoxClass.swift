@@ -5,12 +5,14 @@
 //  Created by Yuhao Chen on 7/20/24.
 //
 
-struct LoxClass: Callable {
+final class LoxClass: Callable {
     let name: String
+    let superclass: LoxClass?
     let methods: Dictionary<String, LoxFunction>
     
-    init(_ name: String, methods: Dictionary<String, LoxFunction>) {
+    init(_ name: String, superclass: LoxClass?, methods: Dictionary<String, LoxFunction>) {
         self.name = name
+        self.superclass = superclass
         self.methods = methods
     }
     
@@ -38,7 +40,15 @@ struct LoxClass: Callable {
     }
     
     func findMethod(name: String) -> LoxFunction? {
-        return methods[name]
+        if let method = methods[name] {
+            return method
+        }
+        
+        if let method = superclass?.findMethod(name: name) {
+            return method
+        }
+        
+        return nil
     }
 }
 

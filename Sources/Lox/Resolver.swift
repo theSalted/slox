@@ -49,6 +49,21 @@ public final class Resolver: ExpressionVisitor, StatementVisitor {
         defer { currentClassType = enclosingClassType }
         currentClassType = .class
         
+        if let superclass = stmt.superclass {
+            
+            if stmt.name.lexeme == superclass.name.lexeme {
+                Lox.reportError(
+                    "A class can't inherit from itself.",
+                    at: superclass.name)
+            }
+            currentClassType = .subclass
+            
+            resolve(superclass)
+            
+            beginScope()
+            scopes[scopes.count - 1]["super"] = true
+        }
+        
         beginScope()
         scopes[scopes.count - 1]["this"] = true
         
@@ -61,6 +76,7 @@ public final class Resolver: ExpressionVisitor, StatementVisitor {
         }
         
         endScope()
+        if stmt.superclass != nil { endScope() }
     }
     
     public func visit(_ stmt: Var) -> Void {
@@ -147,6 +163,19 @@ public final class Resolver: ExpressionVisitor, StatementVisitor {
         resolve(expr.object)
     }
     
+    public func visit(_ expr: Super) -> Void {
+        if currentClassType == .none {
+            Lox.reportError(
+                "Can't use '\(TokenType.super.rawValue)' outside of a class",
+                at: expr.keyword)
+        } else if currentClassType != .subclass {
+            Lox.reportError(
+                "Can't '\(TokenType.super.rawValue)' in a class with no superclass.", 
+                at: expr.keyword)
+        }
+        resolveLocal(expr, expr.keyword)
+    }
+    
     public func visit(_ expr: This) -> Void {
         if currentClassType == .none {
             Lox.reportError("Can't use 'this' outside of a class", at: expr.keyword)
@@ -230,6 +259,6 @@ extension Resolver {
     }
     
     private enum ClassType {
-        case none, `class`
+        case none, `class`, subclass
     }
 }

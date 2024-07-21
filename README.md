@@ -43,7 +43,7 @@ This project follows the book [Crafting Interpreters](http://www.craftinginterpr
   - [x] Functions
   - [x] Classes
   - [x] Runtime Entities (Callable, LoxClass, LoxFunction, & LoxInstance)
-  - [ ] Inheritance 
+  - [x] Inheritance 
   - [ ] Expression support for REPL mode
   - [ ] Integration Tests / Lox Scripts
 - [x] Resolver

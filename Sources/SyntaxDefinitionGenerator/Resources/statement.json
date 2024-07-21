@@ -24,7 +24,7 @@
     },
     {
       "name": "Class",
-      "parameterField": "name: Token, methods: Array<Function>"
+      "parameterField": "name: Token, superclass: Variable?, methods: Array<Function>"
     },
     {
       "name": "LoxReturn",

@@ -62,6 +62,13 @@ public final class Parser {
             throw reportError("Expect class name.", token: latestToken)
         }
         
+        var superclass: Variable? = nil
+        if match(.less) {
+            do { try consume(.identifier) }
+            catch { throw reportError("Expect superclass name.", token: latestToken) }
+            superclass = Variable(name: previousToken)
+        }
+        
         do { try consume(.leftBrace) }
         catch { throw reportError("Expect '{' before class body.", token: latestToken)}
         
@@ -75,7 +82,7 @@ public final class Parser {
         do { try consume(.rightBrace) }
         catch { throw reportError("Expect '}' after class body.", token: latestToken) }
         
-        return Class(name: name, methods: methods)
+        return Class(name: name, superclass: superclass, methods: methods)
     }
     
     private func statement() throws -> Statement {
@@ -397,6 +404,18 @@ public final class Parser {
         }
         if match(.number, .string) {
             return Literal(value: previousToken.literal)
+        }
+        if match(.super) {
+            let keyword = previousToken
+            
+            do { try consume(.dot) }
+            catch { throw reportError("Expect '\(TokenType.dot.rawValue)' after '\(TokenType.super.rawValue)'.", token: latestToken) }
+            
+            guard let method = try? consume(.identifier) else {
+                throw reportError("Expect superclass method name", token: latestToken)
+            }
+            
+            return Super(keyword: keyword, method: method)
         }
         if match(.this) {
             return This(keyword: previousToken)

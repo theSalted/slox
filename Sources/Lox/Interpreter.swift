@@ -89,6 +89,34 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
     public func visit(_ stmt: Class) -> Value? {
         environment.define(name: stmt.name.lexeme, value: NilAny)
         
+        // Construct inheritance
+        var superclass: LoxClass? = nil
+        if let superclassVariable = stmt.superclass {
+            switch evaluate(superclassVariable) {
+            case .success(let value):
+                guard let `class` = value as? LoxClass else {
+                    return .failure(InterpreterError.runtime(
+                        message: "Superclass must be a class",
+                        onLine: superclassVariable.name.line,
+                        locationDescription: nil))
+                }
+                superclass = `class`
+                
+                environment = Environment(enclosing: environment)
+                environment.define(name: "super", value: value)
+                
+            case .failure(let error):
+                return .failure(error)
+            case .none:
+                return .failure(InterpreterError.runtime(
+                    message: "Superclass evaluated to nil",
+                    onLine: superclassVariable.name.line,
+                    locationDescription: nil))
+            }
+            
+        }
+        
+        // Construct methods
         var methods = Dictionary<String, LoxFunction>()
         
         for method in stmt.methods {
@@ -96,7 +124,8 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
             methods[method.name.lexeme] = function
         }
         
-        let `class` = LoxClass(stmt.name.lexeme, methods: methods)
+        // Class assembly
+        let `class` = LoxClass(stmt.name.lexeme, superclass: superclass, methods: methods)
         do { try environment.assign(name: stmt.name, value: `class`) }
         catch { return .failure(
             error as? InterpreterError ??
@@ -379,6 +408,30 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
         
         instance.set(expr.name, value: value)
         return .success(value)
+    }
+    
+    public func visit(_ expr: Super) -> Value? {
+        guard let distance = locals[expr.hashable] else {
+            return .failure(InterpreterError.runtime(
+                message: "Can't find '\(TokenType.super.rawValue)' in environment.", onLine: expr.keyword.line, locationDescription: nil))
+        }
+        
+        guard let superclass = try? environment.get("\(TokenType.super.rawValue)", at: distance) as? LoxClass else {
+            return .failure(InterpreterError.runtime(
+                message: "'\(TokenType.super.rawValue)' must be a class.", onLine: expr.keyword.line, locationDescription: nil))
+        }
+        
+        guard let object = try? environment.get("\(TokenType.this.rawValue)", at: distance - 1) as? LoxInstance else {
+            return .failure(InterpreterError.runtime(
+                message: "'\(TokenType.super.rawValue)' must be an instance.", onLine: expr.keyword.line, locationDescription: nil))
+        }
+        
+        guard let method = superclass.findMethod(name: expr.method.lexeme) else {
+            return .failure(InterpreterError.runtime(
+                message: "Undefined property'\(expr.method.lexeme)'.", onLine: expr.method.line, locationDescription: nil))
+        }
+        
+        return .success(method.binded(object))
     }
     
     public func visit(_ expr: This) -> Value? {
