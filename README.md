@@ -42,8 +42,10 @@ This project follows the book [Crafting Interpreters](http://www.craftinginterpr
   - [ ] Break and Continue
   - [x] Functions
   - [x] Classes
+  - [x] Runtime Entities (Callable, LoxClass, LoxFunction, & LoxInstance)
   - [ ] Inheritance 
   - [ ] Expression support for REPL mode
+  - [ ] Integration Tests / Lox Scripts
 - [x] Resolver
   - [x] Static Analysis
   - [x] Top-level return
