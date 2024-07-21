@@ -8,14 +8,18 @@
 struct LoxFunction: Callable {
     let declaration: Function
     let closure: Environment
+    let isInitializer: Bool
     
     var arity: Int {
         return declaration.parameters.count
     }
     
-    init(declaration: Function, closure: Environment) {
+    init(declaration: Function,
+         closure: Environment,
+         isInitializer: Bool = false) {
         self.declaration = declaration
         self.closure = closure
+        self.isInitializer = isInitializer
     }
     
     func call(interpreter: Interpreter, arguments: Array<Any>) -> Interpreter.Value? {
@@ -30,6 +34,19 @@ struct LoxFunction: Callable {
            let returnValue = value as? InterpreterReturn,
            let rawValue = returnValue.value
         {
+            if isInitializer {
+                do {
+                    return .success(try closure.get("this", at: 0))
+                } catch {
+                    return .failure(
+                        error as? InterpreterError ??
+                        InterpreterError.runtime(
+                            message: "Unknown issue occurred initializer return statement.",
+                            onLine: declaration.name.line,
+                            locationDescription: nil)
+                    )
+                }
+            }
             return .success(rawValue)
         }
         
@@ -39,7 +56,7 @@ struct LoxFunction: Callable {
     func binded(_ instance: LoxInstance) -> LoxFunction {
         let environment = Environment(enclosing: closure)
         environment.define(name: "this", value: instance)
-        return LoxFunction(declaration: declaration, closure: environment)
+        return LoxFunction(declaration: declaration, closure: environment, isInitializer: isInitializer)
     }
     
 }

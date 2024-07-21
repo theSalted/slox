@@ -15,11 +15,24 @@ struct LoxClass: Callable {
     }
     
     var arity: Int {
-        return 0
+        guard let initializer = findMethod(name: "init") else {
+            return 0
+        }
+        return initializer.arity
     }
     
     func call(interpreter: Interpreter, arguments: Array<Any>) -> Interpreter.Value? {
         let instance = LoxInstance(self)
+        
+        if let initializer = findMethod(name: "init") {
+            let result = initializer
+                .binded(instance)
+                .call(interpreter: interpreter, arguments: arguments)
+            
+            if case let .failure(error) = result {
+                return .failure(error)
+            }
+        }
         
         return .success(instance)
     }

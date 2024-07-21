@@ -92,7 +92,7 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
         var methods = Dictionary<String, LoxFunction>()
         
         for method in stmt.methods {
-            let function = LoxFunction(declaration: method, closure: environment)
+            let function = LoxFunction(declaration: method, closure: environment, isInitializer: method.name.lexeme == "init")
             methods[method.name.lexeme] = function
         }
         

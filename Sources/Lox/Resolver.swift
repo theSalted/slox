@@ -53,7 +53,11 @@ public final class Resolver: ExpressionVisitor, StatementVisitor {
         scopes[scopes.count - 1]["this"] = true
         
         for method in stmt.methods {
-            resolveFunction(method, type: .method)
+            var declaration = FunctionType.method
+            if method.name.lexeme == "init" {
+                declaration = .initializer
+            }
+            resolveFunction(method, type: declaration)
         }
         
         endScope()
@@ -92,6 +96,9 @@ public final class Resolver: ExpressionVisitor, StatementVisitor {
         }
         
         if let value = stmt.value {
+            if currentFunctionType == .initializer {
+                Lox.reportError("Can't return a value from an initializer", at: stmt.keyword)
+            }
             resolve(value)
         }
     }
@@ -219,7 +226,7 @@ extension Resolver {
     }
     
     private enum FunctionType {
-        case none, function, method
+        case none, function, initializer, method
     }
     
     private enum ClassType {

@@ -47,6 +47,11 @@ public final class Environment {
         throw InterpreterError.runtime(message: "Undefined variable '\(name.lexeme)'.", onLine: name.line, locationDescription: nil)
     }
     
+    func get(_ name: String, at distance: Int) throws -> Any {
+        let tokenName = Token(.identifier, lexeme: name, literal: nil, line: 0)
+        return try get(tokenName, at: distance)
+    }
+    
     func get(_ name: Token, at distance: Int) throws -> Any {
         guard let environment = try? getAncestor(distance) else {
             throw InterpreterError.runtime(
