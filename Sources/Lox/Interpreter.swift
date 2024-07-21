@@ -358,6 +358,21 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
         return .success(value)
     }
     
+    public func visit(_ expr: This) -> Value? {
+        do {
+            let value = try lookUpVariable(expr.keyword, expr: expr)
+            return .success(value)
+        } catch {
+            return .failure(
+                error as? InterpreterError ??
+                InterpreterError.runtime(
+                    message: "Something went wrong while looking up variable",
+                    onLine: expr.keyword.line,
+                    locationDescription: nil)
+            )
+        }
+    }
+    
     public func visit(_ expr: Grouping) -> Value? {
         evaluate(expr.expression)
     }

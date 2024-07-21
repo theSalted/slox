@@ -27,6 +27,10 @@
       "parameterField": "object: Expression, name: Token, value: Expression"
     },
     {
+      "name": "This",
+      "parameterField": "keyword: Token"
+    },
+    {
       "name": "Grouping",
       "parameterField": "expression: Expression"
     },

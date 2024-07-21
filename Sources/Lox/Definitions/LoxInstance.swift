@@ -19,7 +19,7 @@ class LoxInstance {
         }
         
         if let method = `class`.findMethod(name: name.lexeme) {
-            return .success(method)
+            return .success(method.binded(self))
         }
         
         return .failure(InterpreterError.runtime(

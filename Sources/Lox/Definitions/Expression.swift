@@ -18,6 +18,7 @@ public protocol ExpressionVisitor {
     func visit(_ expr: Call) -> ExpressionVisitorReturn
     func visit(_ expr: Get) -> ExpressionVisitorReturn
     func visit(_ expr: Set) -> ExpressionVisitorReturn
+    func visit(_ expr: This) -> ExpressionVisitorReturn
     func visit(_ expr: Grouping) -> ExpressionVisitorReturn
     func visit(_ expr: Literal) -> ExpressionVisitorReturn
     func visit(_ expr: Logical) -> ExpressionVisitorReturn
@@ -101,6 +102,18 @@ public final class Set: Expression {
     }
 }
 
+public final class This: Expression {
+    let keyword: Token
+
+    init(keyword: Token) {
+        self.keyword = keyword
+    }
+
+    public func accept<V: ExpressionVisitor, R>(visitor: V) -> R where R == V.ExpressionVisitorReturn {
+        return visitor.visit(self)
+    }
+}
+
 public final class Grouping: Expression {
     let expression: Expression
 
@@ -166,4 +179,3 @@ public final class Variable: Expression {
         return visitor.visit(self)
     }
 }
-

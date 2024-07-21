@@ -13,6 +13,7 @@ public final class Resolver: ExpressionVisitor, StatementVisitor {
     
     private let interpreter: Interpreter
     private var scopes: Array<Dictionary<String, Bool>> = []
+    private var currentClassType: ClassType = .none
     private var currentFunctionType: FunctionType = .none
     
     init(interpreter: Interpreter) {
@@ -41,13 +42,23 @@ public final class Resolver: ExpressionVisitor, StatementVisitor {
     }
     
     public func visit(_ stmt: Class) -> Void {
+        let enclosingClassType = currentClassType
+        currentClassType = .class
+        defer {
+            currentClassType = enclosingClassType
+        }
+        
         declare(stmt.name)
         define(stmt.name)
         
+        beginScope()
+        scopes[scopes.count - 1]["this"] = true
+        
         for method in stmt.methods {
-            let declaration = FunctionType.method
             resolveFunction(method, type: .method)
         }
+        
+        endScope()
     }
     
     public func visit(_ stmt: Var) -> Void {
@@ -131,6 +142,13 @@ public final class Resolver: ExpressionVisitor, StatementVisitor {
         resolve(expr.object)
     }
     
+    public func visit(_ expr: This) -> Void {
+        if currentClassType == .none {
+            Lox.reportError("Can't use 'this' outside of a class", at: expr.keyword)
+        }
+        resolveLocal(expr, expr.keyword)
+    }
+    
     public func visit(_ expr: Grouping) -> Void {
         resolve(expr.expression)
     }
@@ -205,5 +223,9 @@ extension Resolver {
     
     private enum FunctionType {
         case none, function, method
+    }
+    
+    private enum ClassType {
+        case none, `class`
     }
 }

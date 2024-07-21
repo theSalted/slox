@@ -398,6 +398,9 @@ public final class Parser {
         if match(.number, .string) {
             return Literal(value: previousToken.literal)
         }
+        if match(.this) {
+            return This(keyword: previousToken)
+        }
         if match(.identifier) {
             return Variable(name: previousToken)
         }

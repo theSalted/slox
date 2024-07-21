@@ -25,9 +25,7 @@ struct LoxFunction: Callable {
             environment.define(name: param.lexeme, value: arguments[i])
         }
         
-//        print("Begin function block execution")
         let result = interpreter.executeBlock(statements: declaration.body, environment: environment)
-//        print("End function block execution")
         if case let .success(value) = result,
            let returnValue = value as? InterpreterReturn,
            let rawValue = returnValue.value
@@ -37,6 +35,13 @@ struct LoxFunction: Callable {
         
         return result
     }
+    
+    func binded(_ instance: LoxInstance) -> LoxFunction {
+        let environment = Environment(enclosing: closure)
+        environment.define(name: "this", value: instance)
+        return LoxFunction(declaration: declaration, closure: environment)
+    }
+    
 }
 
 extension LoxFunction: CustomDebugStringConvertible {
