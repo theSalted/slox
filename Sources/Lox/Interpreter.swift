@@ -325,7 +325,21 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
     public func visit(_ expr: Get) -> Value? {
         let evaluatedObject = evaluate(expr.object)
         
-        guard case let .success(object) = evaluatedObject, let instance = object as? LoxInstance else {
+        let object: Any
+        
+        switch evaluatedObject {
+        case .success(let value):
+            object = value
+        case .failure(let error):
+            return .failure(error)
+        case .none:
+            return .failure(InterpreterError.runtime(
+                message: "Object evaluated to nil.",
+                onLine: expr.name.line,
+                locationDescription: nil))
+        }
+        
+        guard let instance = object as? LoxInstance else {
             return .failure(InterpreterError.runtime(
                 message: "Only instances have properties.",
                 onLine: expr.name.line,
@@ -339,8 +353,17 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
     public func visit(_ expr: Set) -> Value? {
         let object = evaluate(expr.object)
         
-        guard case let .success(objectValue) = object,
-              let instance = objectValue as? LoxInstance else {
+        let objectValue: Any
+        switch object {
+        case .success(let value):
+            objectValue = value
+        case .failure(let error):
+            return .failure(error)
+        case .none:
+            return .failure(InterpreterError.runtime(message: "Object evaluated to nil.", onLine: expr.name.line, locationDescription: nil))
+        }
+        
+        guard let instance = objectValue as? LoxInstance else {
             return .failure(InterpreterError.runtime(message: "Only instances have filed.", onLine: expr.name.line, locationDescription: nil))
         }
         

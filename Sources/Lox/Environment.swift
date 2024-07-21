@@ -17,7 +17,7 @@ let NilAny: Any = Optional<Any>.none as Any
 
 public final class Environment {
     var enclosing: Environment?
-    private var values = Dictionary<String, Any>()
+    var values = Dictionary<String, Any>()
     
     init() {
         self.enclosing = nil
@@ -44,7 +44,7 @@ public final class Environment {
             return try enclosing.get(name)
         }
         
-        throw InterpreterError.runtime(message: "Undefined variable \(name.lexeme).", onLine: name.line, locationDescription: nil)
+        throw InterpreterError.runtime(message: "Undefined variable '\(name.lexeme)'.", onLine: name.line, locationDescription: nil)
     }
     
     func get(_ name: Token, at distance: Int) throws -> Any {

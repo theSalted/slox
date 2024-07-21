@@ -42,14 +42,12 @@ public final class Resolver: ExpressionVisitor, StatementVisitor {
     }
     
     public func visit(_ stmt: Class) -> Void {
-        let enclosingClassType = currentClassType
-        currentClassType = .class
-        defer {
-            currentClassType = enclosingClassType
-        }
-        
         declare(stmt.name)
         define(stmt.name)
+        
+        let enclosingClassType = currentClassType
+        defer { currentClassType = enclosingClassType }
+        currentClassType = .class
         
         beginScope()
         scopes[scopes.count - 1]["this"] = true
@@ -215,10 +213,9 @@ extension Resolver {
     }
     
     private func endScope() {
-        guard !scopes.isEmpty else {
-            return
+        if !scopes.isEmpty {
+            scopes.removeLast()
         }
-        scopes.removeLast()
     }
     
     private enum FunctionType {

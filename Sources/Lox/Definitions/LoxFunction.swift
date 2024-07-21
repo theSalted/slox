@@ -19,7 +19,7 @@ struct LoxFunction: Callable {
     }
     
     func call(interpreter: Interpreter, arguments: Array<Any>) -> Interpreter.Value? {
-        let environment = Environment(enclosing: interpreter.globals)
+        let environment = Environment(enclosing: closure)
         
         for (i, param) in declaration.parameters.enumerated() {
             environment.define(name: param.lexeme, value: arguments[i])

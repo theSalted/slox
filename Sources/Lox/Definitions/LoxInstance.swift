@@ -19,7 +19,8 @@ class LoxInstance {
         }
         
         if let method = `class`.findMethod(name: name.lexeme) {
-            return .success(method.binded(self))
+            let test = method.binded(self)
+            return .success(test)
         }
         
         return .failure(InterpreterError.runtime(
@@ -33,6 +34,6 @@ class LoxInstance {
 
 extension LoxInstance: CustomDebugStringConvertible {
     var debugDescription: String {
-        return self.class.name + " instance"
+        return  "< \(self.class.name) instance>"
     }
 }
