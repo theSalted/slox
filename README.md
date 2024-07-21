@@ -41,7 +41,8 @@ This project follows the book [Crafting Interpreters](http://www.craftinginterpr
   - [x] Control Flows
   - [ ] Break and Continue
   - [x] Functions
-  - [ ] Classes
+  - [x] Classes
+  - [ ] Inheritance 
   - [ ] Expression support for REPL mode
 - [x] Resolver
   - [x] Static Analysis
