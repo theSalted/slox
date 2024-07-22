@@ -4,7 +4,7 @@
 
 Swift Implementation of a Lox Interpreter.
 
-Lox is a dynamically typed, turin complete programmimng language. 
+Lox is a dynamically typed and turin complete programmimng language. 
 
 > [!NOTE]
 > This implementation have achieved 100% of Lox's main specification. And couple challenge specification. I have plan to work on a Swift based DSL that builds on top of this project; and a compiled version of Lox with a lower level lanaguge. I consider Slox as done. 
