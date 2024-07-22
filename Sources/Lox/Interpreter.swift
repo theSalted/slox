@@ -126,7 +126,20 @@ public final class Interpreter: StatementVisitor, ExpressionVisitor {
         
         // Class assembly
         let `class` = LoxClass(stmt.name.lexeme, superclass: superclass, methods: methods)
-        do { try environment.assign(name: stmt.name, value: `class`) }
+        do {
+            try environment.assign(name: stmt.name, value: `class`)
+            
+            if superclass != nil {
+                guard let enclosing = environment.enclosing else {
+                    throw InterpreterError.runtime( /*This should never happen*/
+                        message: "Something went wrong while declaring your class with proper environment",
+                        onLine: stmt.name.line,
+                        locationDescription: nil)
+                }
+                
+                environment = enclosing
+            }
+        }
         catch { return .failure(
             error as? InterpreterError ??
             InterpreterError.runtime( /*This should never happen*/
